@@ -267,8 +267,6 @@ Hình 3: Bản đồ phân loại MACs (mac_classification.png).
 
 Pipeline được triển khai bằng Python với các thư viện chính: NumPy, SciPy, scikit-learn, PyTorch (cho Transformer), GDAL (cho xử lý ảnh), và MintPy/SNAP (cho SBAS). Dữ liệu được xử lý trên máy tính với GPU NVIDIA RTX 3080, thời gian chạy khoảng 4-6 giờ cho 150 ảnh SAR. Công cụ Google Earth Engine (GEE) được sử dụng qua API Python (`ee` library) để truy cập trực tiếp dữ liệu khí tượng, DEM và Sentinel-1 mà không tải về toàn bộ datasets, chỉ lấy kết quả xử lý từ cloud (xem `gee_scripts/ingest_gee_to_processed.py`). Kết quả được xuất dưới dạng GeoTIFF, CSV, và PNG cho tích hợp với GIS như QGIS.
 
-Xem mã nguồn chi tiết và hướng dẫn triển khai tại [GitHub repository](https://github.com/example/tinhtuc_insar_project) (nếu có).
-
 ## Thảo luận
 
 Pipeline vượt trội so với SBAS truyền thống nhờ tích hợp không-thời gian và dữ liệu ngoại sinh, cho phép phát hiện biến dạng phi tuyến do mưa. Tuy nhiên, cần cải thiện xử lý nhiễu khí quyển ở vùng đồi núi bằng mô hình ERA5 chi tiết hơn. Ứng dụng thực tế hỗ trợ quản lý rủi ro khai thác mỏ, với tiềm năng mở rộng cho các khu vực tương tự. So sánh với phương pháp khác cho thấy độ chính xác cao hơn 20% trong phát hiện MACs. Giới hạn chính là phụ thuộc vào dữ liệu SAR sẵn có và nhiễu khí quyển, nhưng fusion giảm thiểu điều này.
