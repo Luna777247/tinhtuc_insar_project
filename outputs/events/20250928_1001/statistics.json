@@ -1,0 +1,30 @@
+{
+  "event_name": "M\u01b0a l\u0169 28/09-01/10/2025",
+  "generated_at": "2026-05-11T14:50:59.091103",
+  "data_type": "synthetic",
+  "grid_size": {
+    "H": 100,
+    "W": 100,
+    "pixel_m": 10
+  },
+  "flood": {
+    "area_ha": 8.15,
+    "pixels": 815
+  },
+  "landslide": {
+    "area_ha": 0.0,
+    "pixels": 0
+  },
+  "mine_waste": {
+    "area_ha": 3.0,
+    "locations": 3
+  },
+  "risk_distribution": {
+    "Normal (0)": 8913,
+    "Low (1)": 1059,
+    "Medium (2)": 0,
+    "High (3)": 0,
+    "Extreme (4)": 28
+  },
+  "hotspot_count": 0
+}

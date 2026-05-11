@@ -1,0 +1,37 @@
+{
+  "event_name": "M\u01b0a l\u0169 28/09-01/10/2025",
+  "period": {
+    "start": "2025-09-28",
+    "end": "2025-10-01"
+  },
+  "images": [
+    {
+      "date": "2025-09-19 22:50:36",
+      "relativeOrbit": 91.0,
+      "orbit": "DESCENDING"
+    },
+    {
+      "date": "2025-09-22 11:06:50",
+      "relativeOrbit": 128.0,
+      "orbit": "ASCENDING"
+    },
+    {
+      "date": "2025-09-29 10:58:25",
+      "relativeOrbit": 55.0,
+      "orbit": "ASCENDING"
+    },
+    {
+      "date": "2025-09-29 10:58:50",
+      "relativeOrbit": 55.0,
+      "orbit": "ASCENDING"
+    },
+    {
+      "date": "2025-10-01 22:50:36",
+      "relativeOrbit": 91.0,
+      "orbit": "DESCENDING"
+    }
+  ],
+  "gee_script": "gee_scripts/06_flood_event_20250929_1001.js",
+  "output_dir": "outputs/events/20250928_1001",
+  "subsidence_data": "S1_Metadata_TinhTuc_2014_to_Now.csv"
+}

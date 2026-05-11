@@ -13,7 +13,20 @@ import numpy as np
 DEFAULT_KEY_PATH = Path(__file__).with_name("gee-private-key.json")
 DEFAULT_OUTPUT_DIR = Path(__file__).resolve().parent.parent / "data" / "processed"
 
-BBOX = [105.87, 22.57, 106.08, 22.78]
+# Load AOI từ settings (sẽ đọc từ GeoJSON nếu có)
+import sys
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
+try:
+    from config.settings import AOI
+    BBOX = [AOI["lon_min"], AOI["lat_min"], AOI["lon_max"], AOI["lat_max"]]
+    POLYGON = AOI.get("polygon")  # Polygon chi tiết từ GeoJSON (nếu có)
+except Exception:
+    # Fallback mặc định cho Tĩnh Túc
+    BBOX = [105.87, 22.57, 106.08, 22.78]
+    POLYGON = None
 S2_PRE_START = "2019-11-01"
 S2_PRE_END = "2020-02-28"
 S2_POST_START = "2020-10-01"
@@ -45,6 +58,9 @@ def initialize_ee(key_path: Path, project: str | None = None) -> None:
 
 
 def _study_region() -> ee.Geometry:
+    """Trả về study region từ polygon (nếu có) hoặc bbox."""
+    if POLYGON:
+        return ee.Geometry.Polygon([POLYGON])
     return ee.Geometry.Rectangle(BBOX)
 
 

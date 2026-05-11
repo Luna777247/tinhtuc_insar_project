@@ -33,18 +33,53 @@ SBAS_DIR = PROCESSED_DIR / "sbas_results"                     # Sản phẩm chu
 KF_STATE_DIR = PROCESSED_DIR / "kalman_states"                # Trạng thái ước lượng sau Kalman 4D
 
 # ─────────────────────────────────────────────
-# 2. KHU VỰC NGHIÊN CỨU (AOI)
+# 2. KHU VỰC NGHIÊN CỨU (AOI) — Đọc từ GeoJSON
 # ─────────────────────────────────────────────
-AOI = {
-    "name": "Tinh_Tuc_CaoBang",  # Tên AOI dùng để đặt tên file/sản phẩm
-    "lon_min": 105.85,             # Biên trái AOI theo kinh độ (WGS84)
-    "lon_max": 105.95,             # Biên phải AOI theo kinh độ (WGS84)
-    "lat_min": 22.65,              # Biên dưới AOI theo vĩ độ (WGS84)
-    "lat_max": 22.75,              # Biên trên AOI theo vĩ độ (WGS84)
-    "epsg": 32648,                 # Hệ quy chiếu đích (UTM 48N) cho tính khoảng cách/diện tích
-    "center_lon": 105.90,          # Kinh độ tâm AOI để zoom bản đồ
-    "center_lat": 22.70,           # Vĩ độ tâm AOI để zoom bản đồ
-}
+
+# Đường dẫn đến file GeoJSON định nghĩa AOI
+AOI_GEOJSON_PATH = ROOT_DIR / "data" / "tinhtuc" / "TinhTuc4326_200m.geojson"
+
+# Hàm khởi tạo AOI từ GeoJSON hoặc fallback về bbox mặc định
+def _load_aoi_config():
+    """Load AOI từ GeoJSON hoặc trả về cấu hình mặc định."""
+    try:
+        import sys
+        sys.path.insert(0, str(ROOT_DIR))
+        from src.utils.geo_utils import load_aoi_from_geojson
+
+        if AOI_GEOJSON_PATH.exists():
+            aoi_data = load_aoi_from_geojson(str(AOI_GEOJSON_PATH))
+            return {
+                "name": "Tinh_Tuc_CaoBang",
+                "lon_min": aoi_data['bbox'][0],
+                "lat_min": aoi_data['bbox'][1],
+                "lon_max": aoi_data['bbox'][2],
+                "lat_max": aoi_data['bbox'][3],
+                "epsg": 32648,  # UTM 48N cho khu vực Cao Bằng
+                "center_lon": aoi_data['center_lon'],
+                "center_lat": aoi_data['center_lat'],
+                "polygon": aoi_data['polygon'],  # Polygon chi tiết thay vì chỉ bbox
+                "geojson_path": str(AOI_GEOJSON_PATH),
+            }
+    except Exception as e:
+        print(f"[WARNING] Không thể đọc GeoJSON AOI: {e}")
+        print(f"[INFO] Sử dụng bbox mặc định cho Tĩnh Túc")
+
+    # Fallback: bbox mặc định cho Tĩnh Túc
+    return {
+        "name": "Tinh_Tuc_CaoBang",
+        "lon_min": 105.85,
+        "lon_max": 105.95,
+        "lat_min": 22.65,
+        "lat_max": 22.75,
+        "epsg": 32648,
+        "center_lon": 105.90,
+        "center_lat": 22.70,
+        "polygon": None,
+        "geojson_path": None,
+    }
+
+AOI = _load_aoi_config()
 
 # ─────────────────────────────────────────────
 # 3. THAM SỐ SENTINEL-1

@@ -44,12 +44,20 @@ def _get_study_geometry_from_settings() -> ee.Geometry:
     try:
         from config.settings import AOI  # type: ignore
 
+        # Ưu tiên sử dụng polygon từ GeoJSON nếu có
+        if AOI.get("polygon"):
+            # Chuyển đổi polygon từ [lon, lat] sang format GEE [lon, lat]
+            coords = AOI["polygon"]
+            return ee.Geometry.Polygon([coords])
+
+        # Fallback về bbox nếu không có polygon
         lon_min = AOI["lon_min"]
         lon_max = AOI["lon_max"]
         lat_min = AOI["lat_min"]
         lat_max = AOI["lat_max"]
         return ee.Geometry.Rectangle([lon_min, lat_min, lon_max, lat_max])
     except Exception:
+        # Default fallback polygon cho Tĩnh Túc
         return ee.Geometry.Polygon([
             [
                 [105.87, 22.57],

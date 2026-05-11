@@ -1069,3 +1069,722 @@ ModuleNotFoundError: No module named 'ee'
 2026-05-08 09:41:19,445  INFO      pipeline — 
 ✅  Pipeline hoàn thành trong 53.0s
 2026-05-08 09:41:19,445  INFO      pipeline —     Kết quả tại: /home/runner/workspace/outputs
+2026-05-11 14:32:40,576  INFO      pipeline — ▶▶▶  InSAR Tĩnh Túc Pipeline  ◀◀◀
+2026-05-11 14:32:40,577  INFO      pipeline —     Root: D:\tinhtuc_insar_project
+2026-05-11 14:32:40,577  INFO      pipeline —     Started: 2026-05-11 14:32:40
+2026-05-11 14:32:40,578  INFO      pipeline — ============================================================
+2026-05-11 14:32:40,578  INFO      pipeline — GIAI ĐOẠN 1: THU THẬP & CHUẨN BỊ DỮ LIỆU
+2026-05-11 14:32:40,578  INFO      pipeline — ============================================================
+2026-05-11 14:32:40,623  INFO      pipeline —   Dữ liệu đã xử lý sẵn có — bỏ qua bước ingest GEE.
+2026-05-11 14:32:40,630  INFO      pipeline —   Loaded DEM shape: (95, 95), range: [216.5, 1794.0]m
+2026-05-11 14:32:40,631  INFO      pipeline —   Loaded displacement shape: (60, 95, 95), time points: 60
+2026-05-11 14:32:40,631  INFO      pipeline —   Velocity range: [-9.4, 11.1] mm/yr
+2026-05-11 14:32:40,631  INFO      pipeline —   Loading real hydro data from ERA5 via GEE...
+2026-05-11 14:32:45,295  WARNING   googleapiclient.http — Encountered 403 Forbidden with reason "PERMISSION_DENIED"
+2026-05-11 14:36:19,741  INFO      pipeline — ▶▶▶  InSAR Tĩnh Túc Pipeline  ◀◀◀
+2026-05-11 14:36:19,741  INFO      pipeline —     Root: D:\tinhtuc_insar_project
+2026-05-11 14:36:19,742  INFO      pipeline —     Started: 2026-05-11 14:36:19
+2026-05-11 14:36:19,742  INFO      pipeline — ============================================================
+2026-05-11 14:36:19,743  INFO      pipeline — GIAI ĐOẠN 1: THU THẬP & CHUẨN BỊ DỮ LIỆU
+2026-05-11 14:36:19,743  INFO      pipeline — ============================================================
+2026-05-11 14:36:19,770  INFO      pipeline —   Running GEE ingest script: D:\tinhtuc_insar_project\gee_scripts\ingest_gee_to_processed.py
+2026-05-11 14:38:34,530  INFO      pipeline —   ERA5 rainfall: monthly range [0.3, 14.9] mm/month
+2026-05-11 14:38:34,531  INFO      pipeline —   ERA5 soil moisture: range [0.294, 0.479] m³/m³
+2026-05-11 14:38:34,531  INFO      pipeline —   Hydro data: 60 days, mean rainfall=5.6mm/day
+2026-05-11 14:38:34,532  INFO      pipeline —   Hotspots configured: ['P1', 'P2', 'P3']
+2026-05-11 14:38:34,532  INFO      pipeline —   → Phase 1 DONE
+2026-05-11 14:38:34,533  INFO      pipeline — ============================================================
+2026-05-11 14:38:34,533  INFO      pipeline — GIAI ĐOẠN 2: P-SBAS + PHÂN CỤM + PHÂN LOẠI
+2026-05-11 14:38:34,533  INFO      pipeline — ============================================================
+2026-05-11 14:38:35,874  INFO      pipeline —   Using real velocity from GEE: shape (95, 95), range [-9.4, 11.1] mm/yr
+2026-05-11 14:38:35,874  INFO      pipeline —   Displacement timeseries: 60 time points
+2026-05-11 14:38:35,875  INFO      pipeline —   2D decomposition: VV range [-3.2, 2.7]
+2026-05-11 14:38:35,877  INFO      pipeline —   CRB: mean=3.5mm, max=31.5mm
+2026-05-11 14:38:35,877  INFO      src.clustering.spatial_clustering — Active pixels (|v| ≥ 10 mm/yr): 1/9025 (0.0%)
+2026-05-11 14:38:35,879  INFO      src.clustering.spatial_clustering — Spatial clustering: 1 MACs found (min size = 3 pixels)
+2026-05-11 14:38:35,880  INFO      src.clustering.spatial_clustering — Active pixels (|v| ≥ 10 mm/yr): 0/9025 (0.0%)
+2026-05-11 14:38:35,881  INFO      src.clustering.spatial_clustering — Spatial clustering: 0 MACs found (min size = 3 pixels)
+2026-05-11 14:38:35,882  INFO      src.clustering.spatial_clustering — Merged MACs: 1 total (0 with both orbits)
+2026-05-11 14:38:35,882  INFO      pipeline —   MACs found: asc=1, desc=0, merged=1
+2026-05-11 14:38:35,885  INFO      src.classification.mac_classifier — Classification summary (1 MACs):
+2026-05-11 14:38:35,885  INFO      src.classification.mac_classifier —   mixed_deformation        :    1 (100.0%)  [confidence=1]
+2026-05-11 14:38:35,887  INFO      src.utils.io_utils — Saved velocity map: D:\tinhtuc_insar_project\outputs\maps\velocity_asc.bin (95, 95)
+2026-05-11 14:38:35,887  INFO      src.utils.io_utils — Saved 1 MACs to D:\tinhtuc_insar_project\outputs\maps\mac_database.csv
+2026-05-11 14:38:36,322  INFO      src.visualization.plotter — Saved velocity map: D:\tinhtuc_insar_project\outputs\figures\velocity_asc.png
+2026-05-11 14:38:36,742  INFO      src.visualization.plotter — Saved MAC classification map: D:\tinhtuc_insar_project\outputs\figures\mac_classification.png
+2026-05-11 14:38:36,743  INFO      pipeline —   → Phase 2 DONE
+2026-05-11 14:38:36,743  INFO      pipeline — ============================================================
+2026-05-11 14:38:36,743  INFO      pipeline — GIAI ĐOẠN 3: GIÁM SÁT 4D (FUSION FRAMEWORK)
+2026-05-11 14:38:36,743  INFO      pipeline — ============================================================
+2026-05-11 14:38:52,061  INFO      pipeline —   GEE data ingested successfully
+2026-05-11 14:38:52,062  INFO      pipeline —   Tạo dữ liệu tổng hợp (synthetic mode)...
+2026-05-11 14:38:52,086  INFO      pipeline —   Synthetic data generated with AOI: [105.83569596724831, 22.621136180303516, 105.95358211698947, 22.771003385406896]
+2026-05-11 14:38:52,086  INFO      pipeline —   Synthetic data saved.
+2026-05-11 14:38:52,087  INFO      pipeline —   Loaded DEM shape: (50, 50), range: [583.3, 1429.3]m
+2026-05-11 14:38:52,087  INFO      pipeline —   Loaded displacement shape: (48, 50, 50), time points: 48
+2026-05-11 14:38:52,087  INFO      pipeline —   Velocity range: [-16.7, 3.3] mm/yr
+2026-05-11 14:38:52,087  INFO      pipeline —   Loading real hydro data from ERA5 via GEE...
+2026-05-11 14:38:56,408  WARNING   googleapiclient.http — Encountered 403 Forbidden with reason "PERMISSION_DENIED"
+2026-05-11 14:39:02,070  INFO      src.transformer.hydro_transformer — PyTorch available — using full Transformer architecture
+2026-05-11 14:39:02,072  INFO      pipeline —   Processing hotspot: P1 (Sườn dốc khu khai thác thiếc phía Đông)
+2026-05-11 14:39:02,078  INFO      src.transformer.hydro_transformer — HydrometTransformer initialized with torch backend
+2026-05-11 14:39:15,804  INFO      src.transformer.hydro_transformer — Training done. Best val loss: 1495.2518
+2026-05-11 14:39:15,804  INFO      pipeline —     Transformer trained: 30 samples, backend=torch
+2026-05-11 14:39:15,810  INFO      src.kalman.kalman_4d — Running daily fusion framework: 2020-06-01 → 2024-12-01
+2026-05-11 14:39:18,394  INFO      src.kalman.kalman_4d — Fusion framework done: 1645 daily estimates
+2026-05-11 14:39:18,395  INFO      pipeline —     P1: 1645 daily estimates, E_max=nanmm
+2026-05-11 14:39:18,395  INFO      pipeline —   Processing hotspot: P2 (Talus slope có dấu hiệu trượt)
+2026-05-11 14:39:18,399  INFO      src.transformer.hydro_transformer — HydrometTransformer initialized with torch backend
+2026-05-11 14:39:31,297  INFO      src.transformer.hydro_transformer — Training done. Best val loss: 1165.8597
+2026-05-11 14:39:31,297  INFO      pipeline —     Transformer trained: 30 samples, backend=torch
+2026-05-11 14:39:31,298  INFO      src.kalman.kalman_4d — Running daily fusion framework: 2020-06-01 → 2024-12-01
+2026-05-11 14:39:34,271  INFO      src.kalman.kalman_4d — Fusion framework done: 1645 daily estimates
+2026-05-11 14:39:34,272  INFO      pipeline —     P2: 1645 daily estimates, E_max=82.5mm
+2026-05-11 14:39:34,272  INFO      pipeline —   Processing hotspot: P3 (Khu dân cư cạnh mỏ kẽm)
+2026-05-11 14:39:34,277  INFO      src.transformer.hydro_transformer — HydrometTransformer initialized with torch backend
+2026-05-11 14:39:48,408  INFO      src.transformer.hydro_transformer — Training done. Best val loss: 445.5916
+2026-05-11 14:39:48,408  INFO      pipeline —     Transformer trained: 30 samples, backend=torch
+2026-05-11 14:39:48,410  INFO      src.kalman.kalman_4d — Running daily fusion framework: 2020-06-01 → 2024-12-01
+2026-05-11 14:39:51,445  INFO      src.kalman.kalman_4d — Fusion framework done: 1645 daily estimates
+2026-05-11 14:39:51,446  INFO      pipeline —     P3: 1645 daily estimates, E_max=nanmm
+2026-05-11 14:39:51,982  INFO      src.visualization.plotter — Saved timeseries plot: D:\tinhtuc_insar_project\outputs\figures\timeseries_4d.png
+2026-05-11 14:39:51,982  INFO      pipeline —   → Phase 3 DONE
+2026-05-11 14:39:51,983  INFO      pipeline — ============================================================
+2026-05-11 14:39:51,983  INFO      pipeline — GIAI ĐOẠN 4: PHÂN TÍCH KINEMATICS
+2026-05-11 14:39:51,983  INFO      pipeline — ============================================================
+2026-05-11 14:39:51,990  INFO      pipeline —   MSS max: 80.28 ×10⁻³
+2026-05-11 14:39:51,990  INFO      pipeline —   DIL range: [-156.15, 157.01] ×10⁻³
+2026-05-11 14:39:51,991  INFO      src.kinematics.kinematics_analyzer — Thickness: max=200.0m, mean=39.7m
+2026-05-11 14:39:51,992  INFO      pipeline —   Thickness: max=200.0m, mean=40.0m
+2026-05-11 14:39:56,536  INFO      src.kinematics.kinematics_analyzer — ICA: 3 components extracted
+2026-05-11 14:39:56,636  INFO      src.kinematics.kinematics_analyzer — IC1: WTC(rainfall)=0.91, WTC(soil_moisture)=0.96
+2026-05-11 14:39:56,641  INFO      src.kinematics.kinematics_analyzer — IC2: WTC(rainfall)=0.91, WTC(soil_moisture)=0.96
+2026-05-11 14:39:56,646  INFO      src.kinematics.kinematics_analyzer — IC3: WTC(rainfall)=0.91, WTC(soil_moisture)=0.96
+2026-05-11 14:39:56,647  INFO      pipeline —   IC1: dominant_driver=soil_moisture, WTC_rain=0.91
+2026-05-11 14:39:56,647  INFO      pipeline —   IC2: dominant_driver=soil_moisture, WTC_rain=0.91
+2026-05-11 14:39:56,647  INFO      pipeline —   IC3: dominant_driver=soil_moisture, WTC_rain=0.91
+2026-05-11 14:39:56,648  WARNING   src.kinematics.kinematics_analyzer — ⚠ 52 alert events detected in east component
+2026-05-11 14:39:56,648  INFO      pipeline —   Early warning: 52 alert events detected
+2026-05-11 14:39:57,329  INFO      src.visualization.plotter — Saved strain invariants plot: D:\tinhtuc_insar_project\outputs\figures\strain_invariants.png
+2026-05-11 14:39:57,333  INFO      pipeline —   → Phase 4 DONE
+2026-05-11 14:39:57,333  INFO      pipeline — ============================================================
+2026-05-11 14:39:57,334  INFO      pipeline — GIAI ĐOẠN 5: BÁO CÁO KẾT QUẢ
+2026-05-11 14:39:57,334  INFO      pipeline — ============================================================
+2026-05-11 14:39:57,335  INFO      pipeline —   Report saved: D:\tinhtuc_insar_project\outputs\reports\summary_20260511_1439.txt
+2026-05-11 14:39:57,335  INFO      pipeline —   → Phase 5 DONE
+2026-05-11 14:39:57,335  INFO      pipeline — 
+✅  Pipeline hoàn thành trong 436.8s
+2026-05-11 14:39:57,335  INFO      pipeline —     Kết quả tại: D:\tinhtuc_insar_project\outputs
+2026-05-11 14:41:08,042  WARNING   googleapiclient.http — Sleeping 1.71 seconds before retry 1 of 5 for request: POST https://earthengine.googleapis.com/v1/projects/earthengine-legacy/value:compute?prettyPrint=false&alt=json, after 503
+2026-05-11 14:44:08,529  INFO      pipeline —   ERA5 rainfall: monthly range [0.3, 14.9] mm/month
+2026-05-11 14:44:08,529  INFO      pipeline —   ERA5 soil moisture: range [0.294, 0.479] m³/m³
+2026-05-11 14:44:08,530  INFO      pipeline —   Hydro data: 48 days, mean rainfall=5.5mm/day
+2026-05-11 14:44:08,530  INFO      pipeline —   Hotspots configured: ['P1', 'P2', 'P3']
+2026-05-11 14:44:08,530  INFO      pipeline —   → Phase 1 DONE
+2026-05-11 14:44:08,531  INFO      pipeline — ============================================================
+2026-05-11 14:44:08,531  INFO      pipeline — GIAI ĐOẠN 2: P-SBAS + PHÂN CỤM + PHÂN LOẠI
+2026-05-11 14:44:08,531  INFO      pipeline — ============================================================
+2026-05-11 14:44:08,841  INFO      pipeline —   Using real velocity from GEE: shape (50, 50), range [-16.7, 3.3] mm/yr
+2026-05-11 14:44:08,842  INFO      pipeline —   Displacement timeseries: 48 time points
+2026-05-11 14:44:08,842  INFO      pipeline —   2D decomposition: VV range [-3.1, 2.8]
+2026-05-11 14:44:08,843  INFO      pipeline —   CRB: mean=3.5mm, max=17.9mm
+2026-05-11 14:44:08,843  INFO      src.clustering.spatial_clustering — Active pixels (|v| ≥ 10 mm/yr): 121/2500 (4.8%)
+2026-05-11 14:44:08,845  INFO      src.clustering.spatial_clustering — Spatial clustering: 1 MACs found (min size = 3 pixels)
+2026-05-11 14:44:08,845  INFO      src.clustering.spatial_clustering — Active pixels (|v| ≥ 10 mm/yr): 80/2500 (3.2%)
+2026-05-11 14:44:08,846  INFO      src.clustering.spatial_clustering — Spatial clustering: 1 MACs found (min size = 3 pixels)
+2026-05-11 14:44:08,847  INFO      src.clustering.spatial_clustering — Merged MACs: 1 total (1 with both orbits)
+2026-05-11 14:44:08,847  INFO      pipeline —   MACs found: asc=1, desc=1, merged=1
+2026-05-11 14:44:08,848  INFO      src.classification.mac_classifier — Classification summary (1 MACs):
+2026-05-11 14:44:08,848  INFO      src.classification.mac_classifier —   potential_landslide      :    1 (100.0%)  [confidence=1]
+2026-05-11 14:44:08,848  INFO      src.utils.io_utils — Saved velocity map: D:\tinhtuc_insar_project\outputs\maps\velocity_asc.bin (50, 50)
+2026-05-11 14:44:08,849  INFO      src.utils.io_utils — Saved 1 MACs to D:\tinhtuc_insar_project\outputs\maps\mac_database.csv
+2026-05-11 14:44:09,158  INFO      src.visualization.plotter — Saved velocity map: D:\tinhtuc_insar_project\outputs\figures\velocity_asc.png
+2026-05-11 14:44:09,496  INFO      src.visualization.plotter — Saved MAC classification map: D:\tinhtuc_insar_project\outputs\figures\mac_classification.png
+2026-05-11 14:44:09,496  INFO      pipeline —   → Phase 2 DONE
+2026-05-11 14:44:09,497  INFO      pipeline — ============================================================
+2026-05-11 14:44:09,497  INFO      pipeline — GIAI ĐOẠN 3: GIÁM SÁT 4D (FUSION FRAMEWORK)
+2026-05-11 14:44:09,497  INFO      pipeline — ============================================================
+2026-05-11 14:44:11,059  INFO      src.transformer.hydro_transformer — PyTorch available — using full Transformer architecture
+2026-05-11 14:44:11,062  INFO      pipeline —   Processing hotspot: P1 (Sườn dốc khu khai thác thiếc phía Đông)
+2026-05-11 14:44:11,077  INFO      src.transformer.hydro_transformer — HydrometTransformer initialized with torch backend
+2026-05-11 14:44:20,534  INFO      src.transformer.hydro_transformer — Training done. Best val loss: 553.8629
+2026-05-11 14:44:20,537  INFO      pipeline —     Transformer trained: 18 samples, backend=torch
+2026-05-11 14:44:20,540  INFO      src.kalman.kalman_4d — Running daily fusion framework: 2020-06-04 → 2023-12-31
+2026-05-11 14:44:22,579  INFO      src.kalman.kalman_4d — Fusion framework done: 1306 daily estimates
+2026-05-11 14:44:22,579  INFO      pipeline —     P1: 1306 daily estimates, E_max=114.9mm
+2026-05-11 14:44:22,580  INFO      pipeline —   Processing hotspot: P2 (Talus slope có dấu hiệu trượt)
+2026-05-11 14:44:22,587  INFO      src.transformer.hydro_transformer — HydrometTransformer initialized with torch backend
+2026-05-11 14:44:32,437  INFO      src.transformer.hydro_transformer — Training done. Best val loss: 415.1632
+2026-05-11 14:44:32,437  INFO      pipeline —     Transformer trained: 18 samples, backend=torch
+2026-05-11 14:44:32,439  INFO      src.kalman.kalman_4d — Running daily fusion framework: 2020-06-04 → 2023-12-31
+2026-05-11 14:44:34,813  INFO      src.kalman.kalman_4d — Fusion framework done: 1306 daily estimates
+2026-05-11 14:44:34,813  INFO      pipeline —     P2: 1306 daily estimates, E_max=125.0mm
+2026-05-11 14:44:34,814  INFO      pipeline —   Processing hotspot: P3 (Khu dân cư cạnh mỏ kẽm)
+2026-05-11 14:44:34,818  INFO      src.transformer.hydro_transformer — HydrometTransformer initialized with torch backend
+2026-05-11 14:44:44,923  INFO      src.transformer.hydro_transformer — Training done. Best val loss: 246.5544
+2026-05-11 14:44:44,924  INFO      pipeline —     Transformer trained: 18 samples, backend=torch
+2026-05-11 14:44:44,925  INFO      src.kalman.kalman_4d — Running daily fusion framework: 2020-06-04 → 2023-12-31
+2026-05-11 14:44:47,621  INFO      src.kalman.kalman_4d — Fusion framework done: 1306 daily estimates
+2026-05-11 14:44:47,622  INFO      pipeline —     P3: 1306 daily estimates, E_max=13.0mm
+2026-05-11 14:44:48,132  INFO      src.visualization.plotter — Saved timeseries plot: D:\tinhtuc_insar_project\outputs\figures\timeseries_4d.png
+2026-05-11 14:44:48,133  INFO      pipeline —   → Phase 3 DONE
+2026-05-11 14:44:48,133  INFO      pipeline — ============================================================
+2026-05-11 14:44:48,133  INFO      pipeline — GIAI ĐOẠN 4: PHÂN TÍCH KINEMATICS
+2026-05-11 14:44:48,133  INFO      pipeline — ============================================================
+2026-05-11 14:44:48,136  INFO      pipeline —   MSS max: 52.38 ×10⁻³
+2026-05-11 14:44:48,137  INFO      pipeline —   DIL range: [-96.58, 99.19] ×10⁻³
+2026-05-11 14:44:48,138  INFO      src.kinematics.kinematics_analyzer — Thickness: max=200.0m, mean=43.6m
+2026-05-11 14:44:48,138  INFO      pipeline —   Thickness: max=200.0m, mean=43.7m
+2026-05-11 14:44:49,978  INFO      src.kinematics.kinematics_analyzer — ICA: 3 components extracted
+2026-05-11 14:44:50,004  INFO      src.kinematics.kinematics_analyzer — IC1: WTC(rainfall)=0.87, WTC(soil_moisture)=0.97
+2026-05-11 14:44:50,009  INFO      src.kinematics.kinematics_analyzer — IC2: WTC(rainfall)=0.87, WTC(soil_moisture)=0.97
+2026-05-11 14:44:50,014  INFO      src.kinematics.kinematics_analyzer — IC3: WTC(rainfall)=0.87, WTC(soil_moisture)=0.97
+2026-05-11 14:44:50,014  INFO      pipeline —   IC1: dominant_driver=soil_moisture, WTC_rain=0.87
+2026-05-11 14:44:50,014  INFO      pipeline —   IC2: dominant_driver=soil_moisture, WTC_rain=0.87
+2026-05-11 14:44:50,014  INFO      pipeline —   IC3: dominant_driver=soil_moisture, WTC_rain=0.87
+2026-05-11 14:44:50,016  WARNING   src.kinematics.kinematics_analyzer — ⚠ 106 alert events detected in east component
+2026-05-11 14:44:50,016  INFO      pipeline —   Early warning: 106 alert events detected
+2026-05-11 14:44:50,673  INFO      src.visualization.plotter — Saved strain invariants plot: D:\tinhtuc_insar_project\outputs\figures\strain_invariants.png
+2026-05-11 14:44:50,675  INFO      pipeline —   → Phase 4 DONE
+2026-05-11 14:44:50,675  INFO      pipeline — ============================================================
+2026-05-11 14:44:50,675  INFO      pipeline — GIAI ĐOẠN 5: BÁO CÁO KẾT QUẢ
+2026-05-11 14:44:50,675  INFO      pipeline — ============================================================
+2026-05-11 14:44:50,677  INFO      pipeline —   Report saved: D:\tinhtuc_insar_project\outputs\reports\summary_20260511_1444.txt
+2026-05-11 14:44:50,677  INFO      pipeline —   → Phase 5 DONE
+2026-05-11 14:44:50,677  INFO      pipeline — 
+✅  Pipeline hoàn thành trong 510.9s
+2026-05-11 14:44:50,677  INFO      pipeline —     Kết quả tại: D:\tinhtuc_insar_project\outputs
+2026-05-11 14:49:21,125  INFO      pipeline — ▶▶▶  InSAR Tĩnh Túc Pipeline  ◀◀◀
+2026-05-11 14:49:21,126  INFO      pipeline —     Root: D:\tinhtuc_insar_project
+2026-05-11 14:49:21,127  INFO      pipeline —     Started: 2026-05-11 14:49:21
+2026-05-11 14:49:21,127  INFO      pipeline — ============================================================
+2026-05-11 14:49:21,128  INFO      pipeline — KỊCH BẢN: SỰ KIỆN MƯA LŨ 28/09 - 01/10/2025
+2026-05-11 14:49:21,128  INFO      pipeline — ============================================================
+2026-05-11 14:49:21,689  INFO      pipeline — 
+📡 Phân tích dữ liệu Sentinel-1...
+2026-05-11 14:49:21,689  INFO      src.flood_landslide.event_processor — Event: 2025-09-28 to 2025-10-01, Baseline: 2025-09-18 to 2025-09-25
+2026-05-11 14:49:21,714  INFO      src.flood_landslide.event_processor — Found 5 images for event processing
+2026-05-11 14:49:21,715  INFO      src.flood_landslide.event_processor —   2025-09-19 22:50:36: Orbit 91.0 (DESCENDING) - Slice 1.0
+2026-05-11 14:49:21,715  INFO      src.flood_landslide.event_processor —   2025-09-22 11:06:50: Orbit 128.0 (ASCENDING) - Slice 9.0
+2026-05-11 14:49:21,715  INFO      src.flood_landslide.event_processor —   2025-09-29 10:58:25: Orbit 55.0 (ASCENDING) - Slice 8.0
+2026-05-11 14:49:21,715  INFO      src.flood_landslide.event_processor —   2025-09-29 10:58:50: Orbit 55.0 (ASCENDING) - Slice 9.0
+2026-05-11 14:49:21,716  INFO      src.flood_landslide.event_processor —   2025-10-01 22:50:36: Orbit 91.0 (DESCENDING) - Slice 1.0
+2026-05-11 14:49:21,716  INFO      src.flood_landslide.event_processor — 
+============================================================
+2026-05-11 14:49:21,716  INFO      src.flood_landslide.event_processor — SỰ KIỆN MƯA LŨ 28/09 - 01/10/2025
+2026-05-11 14:49:21,716  INFO      src.flood_landslide.event_processor — ============================================================
+2026-05-11 14:49:21,716  INFO      src.flood_landslide.event_processor — Tìm thấy 5 ảnh Sentinel-1:
+2026-05-11 14:49:21,717  INFO      src.flood_landslide.event_processor —   📡 2025-09-19 22:50 | Orbit 91.0 | DESCENDING
+2026-05-11 14:49:21,717  INFO      src.flood_landslide.event_processor —   📡 2025-09-22 11:06 | Orbit 128.0 | ASCENDING
+2026-05-11 14:49:21,717  INFO      src.flood_landslide.event_processor —   📡 2025-09-29 10:58 | Orbit 55.0 | ASCENDING
+2026-05-11 14:49:21,717  INFO      src.flood_landslide.event_processor —   📡 2025-09-29 10:58 | Orbit 55.0 | ASCENDING
+2026-05-11 14:49:21,717  INFO      src.flood_landslide.event_processor —   📡 2025-10-01 22:50 | Orbit 91.0 | DESCENDING
+2026-05-11 14:49:29,252  INFO      pipeline — ▶▶▶  InSAR Tĩnh Túc Pipeline  ◀◀◀
+2026-05-11 14:49:29,252  INFO      pipeline —     Root: D:\tinhtuc_insar_project
+2026-05-11 14:49:29,253  INFO      pipeline —     Started: 2026-05-11 14:49:29
+2026-05-11 14:49:29,253  INFO      pipeline — ============================================================
+2026-05-11 14:49:29,254  INFO      pipeline — KỊCH BẢN: SỰ KIỆN MƯA LŨ 28/09 - 01/10/2025
+2026-05-11 14:49:29,254  INFO      pipeline — ============================================================
+2026-05-11 14:49:29,585  INFO      pipeline — 
+📡 Phân tích dữ liệu Sentinel-1...
+2026-05-11 14:49:29,586  INFO      src.flood_landslide.event_processor — Event: 2025-09-28 to 2025-10-01, Baseline: 2025-09-18 to 2025-09-25
+2026-05-11 14:49:29,599  INFO      src.flood_landslide.event_processor — Found 5 images for event processing
+2026-05-11 14:49:29,600  INFO      src.flood_landslide.event_processor —   2025-09-19 22:50:36: Orbit 91.0 (DESCENDING) - Slice 1.0
+2026-05-11 14:49:29,600  INFO      src.flood_landslide.event_processor —   2025-09-22 11:06:50: Orbit 128.0 (ASCENDING) - Slice 9.0
+2026-05-11 14:49:29,600  INFO      src.flood_landslide.event_processor —   2025-09-29 10:58:25: Orbit 55.0 (ASCENDING) - Slice 8.0
+2026-05-11 14:49:29,600  INFO      src.flood_landslide.event_processor —   2025-09-29 10:58:50: Orbit 55.0 (ASCENDING) - Slice 9.0
+2026-05-11 14:49:29,601  INFO      src.flood_landslide.event_processor —   2025-10-01 22:50:36: Orbit 91.0 (DESCENDING) - Slice 1.0
+2026-05-11 14:49:29,601  INFO      src.flood_landslide.event_processor — 
+============================================================
+2026-05-11 14:49:29,601  INFO      src.flood_landslide.event_processor — SỰ KIỆN MƯA LŨ 28/09 - 01/10/2025
+2026-05-11 14:49:29,601  INFO      src.flood_landslide.event_processor — ============================================================
+2026-05-11 14:49:29,601  INFO      src.flood_landslide.event_processor — Tìm thấy 5 ảnh Sentinel-1:
+2026-05-11 14:49:29,601  INFO      src.flood_landslide.event_processor —   📡 2025-09-19 22:50 | Orbit 91.0 | DESCENDING
+2026-05-11 14:49:29,601  INFO      src.flood_landslide.event_processor —   📡 2025-09-22 11:06 | Orbit 128.0 | ASCENDING
+2026-05-11 14:49:29,602  INFO      src.flood_landslide.event_processor —   📡 2025-09-29 10:58 | Orbit 55.0 | ASCENDING
+2026-05-11 14:49:29,602  INFO      src.flood_landslide.event_processor —   📡 2025-09-29 10:58 | Orbit 55.0 | ASCENDING
+2026-05-11 14:49:29,602  INFO      src.flood_landslide.event_processor —   📡 2025-10-01 22:50 | Orbit 91.0 | DESCENDING
+2026-05-11 14:49:29,605  INFO      pipeline — ✓ Tìm thấy 5 ảnh
+2026-05-11 14:49:29,605  INFO      pipeline — 
+🛰️ Hướng dẫn chạy GEE:
+2026-05-11 14:49:29,606  INFO      pipeline —    1. Mở: gee_scripts/06_flood_event_20250929_1001.js
+2026-05-11 14:49:29,606  INFO      pipeline —    2. Chạy trong GEE Code Editor
+2026-05-11 14:49:29,606  INFO      pipeline —    3. Tải kết quả về outputs/events/20250928_1001/
+2026-05-11 14:49:29,606  INFO      pipeline — 
+📊 Tốc độ sụt lún (SBAS 2014-2026):
+2026-05-11 14:49:29,607  INFO      pipeline —    - Dữ liệu: S1_Metadata_TinhTuc_2014_to_Now.csv
+2026-05-11 14:49:29,607  INFO      pipeline —    - Orbit 55: 543 ảnh (2015-2026)
+2026-05-11 14:49:29,607  INFO      pipeline —    - Orbit 91: 319 ảnh (2015-2026)
+2026-05-11 14:49:29,607  INFO      pipeline —    - Orbit 128: 268 ảnh (2017-2026)
+2026-05-11 14:49:29,607  INFO      pipeline —    → Sử dụng: ASF HyP3 + MintPy (xem docs/)
+2026-05-11 14:49:29,610  INFO      pipeline — 
+✅ Cấu hình sự kiện đã lưu: D:\tinhtuc_insar_project\outputs\events\20250928_1001/event_config.json
+2026-05-11 14:49:29,610  INFO      pipeline — 
+✅  Pipeline hoàn thành trong 0.4s
+2026-05-11 14:49:29,611  INFO      pipeline —     Kết quả tại: D:\tinhtuc_insar_project\outputs
+2026-05-11 14:50:25,623  INFO      pipeline — ▶▶▶  InSAR Tĩnh Túc Pipeline  ◀◀◀
+2026-05-11 14:50:25,624  INFO      pipeline —     Root: D:\tinhtuc_insar_project
+2026-05-11 14:50:25,624  INFO      pipeline —     Started: 2026-05-11 14:50:25
+2026-05-11 14:50:25,624  INFO      pipeline — ============================================================
+2026-05-11 14:50:25,625  INFO      pipeline — KỊCH BẢN: SỰ KIỆN MƯA LŨ 28/09 - 01/10/2025
+2026-05-11 14:50:25,625  INFO      pipeline — ============================================================
+2026-05-11 14:50:25,975  INFO      pipeline — 
+📡 Phân tích dữ liệu Sentinel-1...
+2026-05-11 14:50:25,976  INFO      src.flood_landslide.event_processor — Event: 2025-09-28 to 2025-10-01, Baseline: 2025-09-18 to 2025-09-25
+2026-05-11 14:50:25,987  INFO      src.flood_landslide.event_processor — Found 5 images for event processing
+2026-05-11 14:50:25,987  INFO      src.flood_landslide.event_processor —   2025-09-19 22:50:36: Orbit 91.0 (DESCENDING) - Slice 1.0
+2026-05-11 14:50:25,988  INFO      src.flood_landslide.event_processor —   2025-09-22 11:06:50: Orbit 128.0 (ASCENDING) - Slice 9.0
+2026-05-11 14:50:25,988  INFO      src.flood_landslide.event_processor —   2025-09-29 10:58:25: Orbit 55.0 (ASCENDING) - Slice 8.0
+2026-05-11 14:50:25,988  INFO      src.flood_landslide.event_processor —   2025-09-29 10:58:50: Orbit 55.0 (ASCENDING) - Slice 9.0
+2026-05-11 14:50:25,988  INFO      src.flood_landslide.event_processor —   2025-10-01 22:50:36: Orbit 91.0 (DESCENDING) - Slice 1.0
+2026-05-11 14:50:25,988  INFO      src.flood_landslide.event_processor — 
+============================================================
+2026-05-11 14:50:25,989  INFO      src.flood_landslide.event_processor — SỰ KIỆN MƯA LŨ 28/09 - 01/10/2025
+2026-05-11 14:50:25,989  INFO      src.flood_landslide.event_processor — ============================================================
+2026-05-11 14:50:25,989  INFO      src.flood_landslide.event_processor — Tìm thấy 5 ảnh Sentinel-1:
+2026-05-11 14:50:25,989  INFO      src.flood_landslide.event_processor —   📡 2025-09-19 22:50 | Orbit 91.0 | DESCENDING
+2026-05-11 14:50:25,989  INFO      src.flood_landslide.event_processor —   📡 2025-09-22 11:06 | Orbit 128.0 | ASCENDING
+2026-05-11 14:50:25,989  INFO      src.flood_landslide.event_processor —   📡 2025-09-29 10:58 | Orbit 55.0 | ASCENDING
+2026-05-11 14:50:25,990  INFO      src.flood_landslide.event_processor —   📡 2025-09-29 10:58 | Orbit 55.0 | ASCENDING
+2026-05-11 14:50:25,990  INFO      src.flood_landslide.event_processor —   📡 2025-10-01 22:50 | Orbit 91.0 | DESCENDING
+2026-05-11 14:50:25,993  INFO      pipeline — ✓ Tìm thấy 5 ảnh
+2026-05-11 14:50:25,993  INFO      pipeline — 
+🛰️ Hướng dẫn chạy GEE:
+2026-05-11 14:50:25,993  INFO      pipeline —    1. Mở: gee_scripts/06_flood_event_20250929_1001.js
+2026-05-11 14:50:25,993  INFO      pipeline —    2. Chạy trong GEE Code Editor
+2026-05-11 14:50:25,993  INFO      pipeline —    3. Tải kết quả về outputs/events/20250928_1001/
+2026-05-11 14:50:25,994  INFO      pipeline — 
+📊 Tốc độ sụt lún (SBAS 2014-2026):
+2026-05-11 14:50:25,994  INFO      pipeline —    - Dữ liệu: S1_Metadata_TinhTuc_2014_to_Now.csv
+2026-05-11 14:50:25,994  INFO      pipeline —    - Orbit 55: 543 ảnh (2015-2026)
+2026-05-11 14:50:25,994  INFO      pipeline —    - Orbit 91: 319 ảnh (2015-2026)
+2026-05-11 14:50:25,994  INFO      pipeline —    - Orbit 128: 268 ảnh (2017-2026)
+2026-05-11 14:50:25,994  INFO      pipeline —    → Sử dụng: ASF HyP3 + MintPy (xem docs/)
+2026-05-11 14:50:25,996  INFO      pipeline — 
+✅ Cấu hình sự kiện đã lưu: D:\tinhtuc_insar_project\outputs\events\20250928_1001/event_config.json
+2026-05-11 14:50:25,996  INFO      pipeline — 
+✅  Pipeline hoàn thành trong 0.4s
+2026-05-11 14:50:25,996  INFO      pipeline —     Kết quả tại: D:\tinhtuc_insar_project\outputs
+2026-05-11 15:13:38,401  INFO      pipeline — ▶▶▶  InSAR Tĩnh Túc Pipeline  ◀◀◀
+2026-05-11 15:13:38,402  INFO      pipeline —     Root: D:\tinhtuc_insar_project
+2026-05-11 15:13:38,402  INFO      pipeline —     Started: 2026-05-11 15:13:38
+2026-05-11 15:13:38,403  INFO      pipeline — ============================================================
+2026-05-11 15:13:38,403  INFO      pipeline — GIAI ĐOẠN 1: THU THẬP & CHUẨN BỊ DỮ LIỆU
+2026-05-11 15:13:38,403  INFO      pipeline — ============================================================
+2026-05-11 15:13:38,436  INFO      pipeline —   Dữ liệu đã xử lý sẵn có — bỏ qua bước ingest GEE.
+2026-05-11 15:13:38,440  INFO      pipeline —   Loaded DEM shape: (50, 50), range: [583.3, 1429.3]m
+2026-05-11 15:13:38,440  INFO      pipeline —   Loaded displacement shape: (48, 50, 50), time points: 48
+2026-05-11 15:13:38,441  INFO      pipeline —   Velocity range: [-16.7, 3.3] mm/yr
+2026-05-11 15:13:38,441  INFO      pipeline —   Loading real hydro data from ERA5 via GEE...
+2026-05-11 15:13:42,163  WARNING   googleapiclient.http — Encountered 403 Forbidden with reason "PERMISSION_DENIED"
+2026-05-11 15:14:05,260  WARNING   googleapiclient.http — Sleeping 0.40 seconds before retry 1 of 5 for request: POST https://earthengine.googleapis.com/v1/projects/earthengine-legacy/value:compute?prettyPrint=false&alt=json, after 503
+2026-05-11 15:17:31,541  WARNING   googleapiclient.http — Sleeping 1.12 seconds before retry 1 of 5 for request: POST https://earthengine.googleapis.com/v1/projects/earthengine-legacy/value:compute?prettyPrint=false&alt=json, after 503
+2026-05-11 15:18:06,437  WARNING   googleapiclient.http — Sleeping 1.60 seconds before retry 1 of 5 for request: POST https://earthengine.googleapis.com/v1/projects/earthengine-legacy/value:compute?prettyPrint=false&alt=json, after 503
+2026-05-11 15:18:17,568  WARNING   googleapiclient.http — Sleeping 1.32 seconds before retry 1 of 5 for request: POST https://earthengine.googleapis.com/v1/projects/earthengine-legacy/value:compute?prettyPrint=false&alt=json, after 503
+2026-05-11 15:18:46,664  WARNING   googleapiclient.http — Sleeping 0.49 seconds before retry 1 of 5 for request: POST https://earthengine.googleapis.com/v1/projects/earthengine-legacy/value:compute?prettyPrint=false&alt=json, after 503
+2026-05-11 15:20:12,247  INFO      pipeline —   ERA5 rainfall: monthly range [0.3, 14.9] mm/month
+2026-05-11 15:20:12,248  INFO      pipeline —   ERA5 soil moisture: range [0.294, 0.479] m³/m³
+2026-05-11 15:20:12,250  INFO      pipeline —   Hydro data: 48 days, mean rainfall=5.5mm/day
+2026-05-11 15:20:12,251  INFO      pipeline —   Hotspots configured: ['P1', 'P2', 'P3']
+2026-05-11 15:20:12,252  INFO      pipeline —   → Phase 1 DONE
+2026-05-11 15:20:12,253  INFO      pipeline — ============================================================
+2026-05-11 15:20:12,255  INFO      pipeline — GIAI ĐOẠN 2: P-SBAS + PHÂN CỤM + PHÂN LOẠI
+2026-05-11 15:20:12,257  INFO      pipeline — ============================================================
+2026-05-11 15:20:13,139  INFO      pipeline —   Using real velocity from GEE: shape (50, 50), range [-16.7, 3.3] mm/yr
+2026-05-11 15:20:13,140  INFO      pipeline —   Displacement timeseries: 48 time points
+2026-05-11 15:20:13,142  INFO      pipeline —   2D decomposition: VV range [-3.1, 2.8]
+2026-05-11 15:20:13,151  INFO      pipeline —   CRB: mean=3.5mm, max=17.9mm
+2026-05-11 15:20:13,153  INFO      src.clustering.spatial_clustering — Active pixels (|v| ≥ 10 mm/yr): 121/2500 (4.8%)
+2026-05-11 15:20:13,161  INFO      src.clustering.spatial_clustering — Spatial clustering: 1 MACs found (min size = 3 pixels)
+2026-05-11 15:20:13,163  INFO      src.clustering.spatial_clustering — Active pixels (|v| ≥ 10 mm/yr): 80/2500 (3.2%)
+2026-05-11 15:20:13,173  INFO      src.clustering.spatial_clustering — Spatial clustering: 1 MACs found (min size = 3 pixels)
+2026-05-11 15:20:13,175  INFO      src.clustering.spatial_clustering — Merged MACs: 1 total (1 with both orbits)
+2026-05-11 15:20:13,175  INFO      pipeline —   MACs found: asc=1, desc=1, merged=1
+2026-05-11 15:20:13,176  INFO      src.classification.mac_classifier — Classification summary (1 MACs):
+2026-05-11 15:20:13,177  INFO      src.classification.mac_classifier —   potential_landslide      :    1 (100.0%)  [confidence=1]
+2026-05-11 15:20:13,178  INFO      src.utils.io_utils — Saved velocity map: D:\tinhtuc_insar_project\outputs\maps\velocity_asc.bin (50, 50)
+2026-05-11 15:20:13,182  INFO      src.utils.io_utils — Saved 1 MACs to D:\tinhtuc_insar_project\outputs\maps\mac_database.csv
+2026-05-11 15:20:14,283  INFO      src.visualization.plotter — Saved velocity map: D:\tinhtuc_insar_project\outputs\figures\velocity_asc.png
+2026-05-11 15:20:15,360  INFO      src.visualization.plotter — Saved MAC classification map: D:\tinhtuc_insar_project\outputs\figures\mac_classification.png
+2026-05-11 15:20:15,361  INFO      pipeline —   → Phase 2 DONE
+2026-05-11 15:20:15,362  INFO      pipeline — ============================================================
+2026-05-11 15:20:15,362  INFO      pipeline — GIAI ĐOẠN 3: GIÁM SÁT 4D (FUSION FRAMEWORK)
+2026-05-11 15:20:15,376  INFO      pipeline — ============================================================
+2026-05-11 15:20:19,162  INFO      src.transformer.hydro_transformer — PyTorch available — using full Transformer architecture
+2026-05-11 15:20:19,166  INFO      pipeline —   Processing hotspot: P1 (Sườn dốc khu khai thác thiếc phía Đông)
+2026-05-11 15:20:19,196  INFO      src.transformer.hydro_transformer — HydrometTransformer initialized with torch backend
+2026-05-11 15:20:45,863  INFO      src.transformer.hydro_transformer — Training done. Best val loss: 420.3579
+2026-05-11 15:20:45,864  INFO      pipeline —     Transformer trained: 18 samples, backend=torch
+2026-05-11 15:20:45,870  INFO      src.kalman.kalman_4d — Running daily fusion framework: 2020-06-04 → 2023-12-31
+2026-05-11 15:20:52,474  INFO      src.kalman.kalman_4d — Fusion framework done: 1306 daily estimates
+2026-05-11 15:20:52,476  INFO      pipeline —     P1: 1306 daily estimates, E_max=122.9mm
+2026-05-11 15:20:52,476  INFO      pipeline —   Processing hotspot: P2 (Talus slope có dấu hiệu trượt)
+2026-05-11 15:20:52,487  INFO      src.transformer.hydro_transformer — HydrometTransformer initialized with torch backend
+2026-05-11 15:21:17,273  INFO      src.transformer.hydro_transformer — Training done. Best val loss: 419.9080
+2026-05-11 15:21:17,274  INFO      pipeline —     Transformer trained: 18 samples, backend=torch
+2026-05-11 15:21:17,275  INFO      src.kalman.kalman_4d — Running daily fusion framework: 2020-06-04 → 2023-12-31
+2026-05-11 15:21:23,916  INFO      src.kalman.kalman_4d — Fusion framework done: 1306 daily estimates
+2026-05-11 15:21:23,918  INFO      pipeline —     P2: 1306 daily estimates, E_max=123.3mm
+2026-05-11 15:21:23,918  INFO      pipeline —   Processing hotspot: P3 (Khu dân cư cạnh mỏ kẽm)
+2026-05-11 15:21:23,928  INFO      src.transformer.hydro_transformer — HydrometTransformer initialized with torch backend
+2026-05-11 15:21:48,129  INFO      src.transformer.hydro_transformer — Training done. Best val loss: 633.2621
+2026-05-11 15:21:48,130  INFO      pipeline —     Transformer trained: 18 samples, backend=torch
+2026-05-11 15:21:48,131  INFO      src.kalman.kalman_4d — Running daily fusion framework: 2020-06-04 → 2023-12-31
+2026-05-11 15:21:54,918  INFO      src.kalman.kalman_4d — Fusion framework done: 1306 daily estimates
+2026-05-11 15:21:54,919  INFO      pipeline —     P3: 1306 daily estimates, E_max=7.2mm
+2026-05-11 15:21:56,263  INFO      src.visualization.plotter — Saved timeseries plot: D:\tinhtuc_insar_project\outputs\figures\timeseries_4d.png
+2026-05-11 15:21:56,263  INFO      pipeline —   → Phase 3 DONE
+2026-05-11 15:21:56,264  INFO      pipeline — ============================================================
+2026-05-11 15:21:56,265  INFO      pipeline — GIAI ĐOẠN 4: PHÂN TÍCH KINEMATICS
+2026-05-11 15:21:56,265  INFO      pipeline — ============================================================
+2026-05-11 15:21:56,273  INFO      pipeline —   MSS max: 52.34 ×10⁻³
+2026-05-11 15:21:56,274  INFO      pipeline —   DIL range: [-96.49, 99.10] ×10⁻³
+2026-05-11 15:21:56,276  INFO      src.kinematics.kinematics_analyzer — Thickness: max=200.0m, mean=43.6m
+2026-05-11 15:21:56,276  INFO      pipeline —   Thickness: max=200.0m, mean=43.7m
+2026-05-11 15:22:00,117  INFO      src.kinematics.kinematics_analyzer — ICA: 3 components extracted
+2026-05-11 15:22:00,187  INFO      src.kinematics.kinematics_analyzer — IC1: WTC(rainfall)=0.85, WTC(soil_moisture)=0.93
+2026-05-11 15:22:00,205  INFO      src.kinematics.kinematics_analyzer — IC2: WTC(rainfall)=0.85, WTC(soil_moisture)=0.93
+2026-05-11 15:22:00,225  INFO      src.kinematics.kinematics_analyzer — IC3: WTC(rainfall)=0.85, WTC(soil_moisture)=0.93
+2026-05-11 15:22:00,226  INFO      pipeline —   IC1: dominant_driver=soil_moisture, WTC_rain=0.85
+2026-05-11 15:22:00,227  INFO      pipeline —   IC2: dominant_driver=soil_moisture, WTC_rain=0.85
+2026-05-11 15:22:00,227  INFO      pipeline —   IC3: dominant_driver=soil_moisture, WTC_rain=0.85
+2026-05-11 15:22:00,232  WARNING   src.kinematics.kinematics_analyzer — ⚠ 106 alert events detected in east component
+2026-05-11 15:22:00,233  INFO      pipeline —   Early warning: 106 alert events detected
+2026-05-11 15:22:02,231  INFO      src.visualization.plotter — Saved strain invariants plot: D:\tinhtuc_insar_project\outputs\figures\strain_invariants.png
+2026-05-11 15:22:02,234  INFO      pipeline —   → Phase 4 DONE
+2026-05-11 15:22:02,236  INFO      pipeline — ============================================================
+2026-05-11 15:22:02,236  INFO      pipeline — GIAI ĐOẠN 5: BÁO CÁO KẾT QUẢ
+2026-05-11 15:22:02,237  INFO      pipeline — ============================================================
+2026-05-11 15:22:02,241  INFO      pipeline —   Report saved: D:\tinhtuc_insar_project\outputs\reports\summary_20260511_1522.txt
+2026-05-11 15:22:02,241  INFO      pipeline —   → Phase 5 DONE
+2026-05-11 15:22:02,242  INFO      pipeline — 
+✅  Pipeline hoàn thành trong 503.8s
+2026-05-11 15:22:02,242  INFO      pipeline —     Kết quả tại: D:\tinhtuc_insar_project\outputs
+2026-05-11 15:30:20,768  INFO      pipeline — ▶▶▶  InSAR Tĩnh Túc Pipeline  ◀◀◀
+2026-05-11 15:30:20,768  INFO      pipeline —     Root: D:\tinhtuc_insar_project
+2026-05-11 15:30:20,768  INFO      pipeline —     Started: 2026-05-11 15:30:20
+2026-05-11 15:30:20,769  INFO      pipeline — ============================================================
+2026-05-11 15:30:20,769  INFO      pipeline — GIAI ĐOẠN 1: THU THẬP & CHUẨN BỊ DỮ LIỆU
+2026-05-11 15:30:20,769  INFO      pipeline — ============================================================
+2026-05-11 15:30:20,800  INFO      pipeline —   Dữ liệu đã xử lý sẵn có — bỏ qua bước ingest GEE.
+2026-05-11 15:30:20,804  INFO      pipeline —   Loaded DEM shape: (50, 50), range: [583.3, 1429.3]m
+2026-05-11 15:30:20,804  INFO      pipeline —   Loaded displacement shape: (48, 50, 50), time points: 48
+2026-05-11 15:30:20,805  INFO      pipeline —   Velocity range: [-16.7, 3.3] mm/yr
+2026-05-11 15:30:20,805  INFO      pipeline —   Loading real hydro data from ERA5 via GEE...
+2026-05-11 15:30:23,464  WARNING   googleapiclient.http — Encountered 403 Forbidden with reason "PERMISSION_DENIED"
+2026-05-11 15:53:16,373  INFO      pipeline — ▶▶▶  InSAR Tĩnh Túc Pipeline  ◀◀◀
+2026-05-11 15:53:16,374  INFO      pipeline —     Root: D:\tinhtuc_insar_project
+2026-05-11 15:53:16,374  INFO      pipeline —     Started: 2026-05-11 15:53:16
+2026-05-11 15:53:16,375  INFO      pipeline — 
+============================================================
+2026-05-11 15:53:16,375  INFO      pipeline — 🚀 CHẠY TẤT CẢ 3 KỊCH BẢN
+2026-05-11 15:53:16,376  INFO      pipeline — ============================================================
+2026-05-11 15:53:16,376  INFO      pipeline — 
+📌 KỊCH BẢN 1/3: Pipeline mặc định (P-SBAS + 4D Kalman)
+2026-05-11 15:53:16,376  INFO      pipeline — ============================================================
+2026-05-11 15:53:16,376  INFO      pipeline — GIAI ĐOẠN 1: THU THẬP & CHUẨN BỊ DỮ LIỆU
+2026-05-11 15:53:16,376  INFO      pipeline — ============================================================
+2026-05-11 15:53:16,421  INFO      pipeline —   Dữ liệu đã xử lý sẵn có — bỏ qua bước ingest GEE.
+2026-05-11 15:53:16,426  INFO      pipeline —   Loaded DEM shape: (50, 50), range: [583.3, 1429.3]m
+2026-05-11 15:53:16,426  INFO      pipeline —   Loaded displacement shape: (48, 50, 50), time points: 48
+2026-05-11 15:53:16,426  INFO      pipeline —   Velocity range: [-16.7, 3.3] mm/yr
+2026-05-11 15:53:16,427  INFO      pipeline —   Loading real hydro data from ERA5 via GEE...
+2026-05-11 15:53:20,463  WARNING   googleapiclient.http — Encountered 403 Forbidden with reason "PERMISSION_DENIED"
+2026-05-11 15:56:57,209  WARNING   googleapiclient.http — Sleeping 0.21 seconds before retry 1 of 5 for request: POST https://earthengine.googleapis.com/v1/projects/earthengine-legacy/value:compute?prettyPrint=false&alt=json, after 503
+2026-05-11 16:00:18,125  INFO      pipeline —   ERA5 rainfall: monthly range [0.3, 14.9] mm/month
+2026-05-11 16:00:18,126  INFO      pipeline —   ERA5 soil moisture: range [0.294, 0.479] m³/m³
+2026-05-11 16:00:18,127  INFO      pipeline —   Hydro data: 48 days, mean rainfall=5.5mm/day
+2026-05-11 16:00:18,127  INFO      pipeline —   Hotspots configured: ['P1', 'P2', 'P3']
+2026-05-11 16:00:18,127  INFO      pipeline —   → Phase 1 DONE
+2026-05-11 16:00:18,127  INFO      pipeline — ============================================================
+2026-05-11 16:00:18,127  INFO      pipeline — GIAI ĐOẠN 2: P-SBAS + PHÂN CỤM + PHÂN LOẠI
+2026-05-11 16:00:18,127  INFO      pipeline — ============================================================
+2026-05-11 16:00:18,939  INFO      pipeline —   Using real velocity from GEE: shape (50, 50), range [-16.7, 3.3] mm/yr
+2026-05-11 16:00:18,939  INFO      pipeline —   Displacement timeseries: 48 time points
+2026-05-11 16:00:18,941  INFO      pipeline —   2D decomposition: VV range [-3.1, 2.8]
+2026-05-11 16:00:18,944  INFO      pipeline —   CRB: mean=3.5mm, max=17.9mm
+2026-05-11 16:00:18,944  INFO      src.clustering.spatial_clustering — Active pixels (|v| ≥ 10 mm/yr): 121/2500 (4.8%)
+2026-05-11 16:00:18,951  INFO      src.clustering.spatial_clustering — Spatial clustering: 1 MACs found (min size = 3 pixels)
+2026-05-11 16:00:18,953  INFO      src.clustering.spatial_clustering — Active pixels (|v| ≥ 10 mm/yr): 80/2500 (3.2%)
+2026-05-11 16:00:18,957  INFO      src.clustering.spatial_clustering — Spatial clustering: 1 MACs found (min size = 3 pixels)
+2026-05-11 16:00:18,958  INFO      src.clustering.spatial_clustering — Merged MACs: 1 total (1 with both orbits)
+2026-05-11 16:00:18,958  INFO      pipeline —   MACs found: asc=1, desc=1, merged=1
+2026-05-11 16:00:18,959  INFO      src.classification.mac_classifier — Classification summary (1 MACs):
+2026-05-11 16:00:18,959  INFO      src.classification.mac_classifier —   potential_landslide      :    1 (100.0%)  [confidence=1]
+2026-05-11 16:00:18,961  INFO      src.utils.io_utils — Saved velocity map: D:\tinhtuc_insar_project\outputs\maps\velocity_asc.bin (50, 50)
+2026-05-11 16:00:18,963  INFO      src.utils.io_utils — Saved 1 MACs to D:\tinhtuc_insar_project\outputs\maps\mac_database.csv
+2026-05-11 16:00:20,026  INFO      src.visualization.plotter — Saved velocity map: D:\tinhtuc_insar_project\outputs\figures\velocity_asc.png
+2026-05-11 16:00:21,128  INFO      src.visualization.plotter — Saved MAC classification map: D:\tinhtuc_insar_project\outputs\figures\mac_classification.png
+2026-05-11 16:00:21,129  INFO      pipeline —   → Phase 2 DONE
+2026-05-11 16:00:21,130  INFO      pipeline — ============================================================
+2026-05-11 16:00:21,131  INFO      pipeline — GIAI ĐOẠN 3: GIÁM SÁT 4D (FUSION FRAMEWORK)
+2026-05-11 16:00:21,131  INFO      pipeline — ============================================================
+2026-05-11 16:00:25,504  INFO      src.transformer.hydro_transformer — PyTorch available — using full Transformer architecture
+2026-05-11 16:00:25,509  INFO      pipeline —   Processing hotspot: P1 (Sườn dốc khu khai thác thiếc phía Đông)
+2026-05-11 16:00:25,541  INFO      src.transformer.hydro_transformer — HydrometTransformer initialized with torch backend
+2026-05-11 16:00:52,115  INFO      src.transformer.hydro_transformer — Training done. Best val loss: 434.6767
+2026-05-11 16:00:52,116  INFO      pipeline —     Transformer trained: 18 samples, backend=torch
+2026-05-11 16:00:52,126  INFO      src.kalman.kalman_4d — Running daily fusion framework: 2020-06-04 → 2023-12-31
+2026-05-11 16:00:58,547  INFO      src.kalman.kalman_4d — Fusion framework done: 1306 daily estimates
+2026-05-11 16:00:58,549  INFO      pipeline —     P1: 1306 daily estimates, E_max=74.9mm
+2026-05-11 16:00:58,549  INFO      pipeline —   Processing hotspot: P2 (Talus slope có dấu hiệu trượt)
+2026-05-11 16:00:58,559  INFO      src.transformer.hydro_transformer — HydrometTransformer initialized with torch backend
+2026-05-11 16:01:49,107  INFO      src.transformer.hydro_transformer — Training done. Best val loss: 394.3692
+2026-05-11 16:01:49,108  INFO      pipeline —     Transformer trained: 18 samples, backend=torch
+2026-05-11 16:01:49,110  INFO      src.kalman.kalman_4d — Running daily fusion framework: 2020-06-04 → 2023-12-31
+2026-05-11 16:01:55,465  INFO      src.kalman.kalman_4d — Fusion framework done: 1306 daily estimates
+2026-05-11 16:01:55,467  INFO      pipeline —     P2: 1306 daily estimates, E_max=121.0mm
+2026-05-11 16:01:55,467  INFO      pipeline —   Processing hotspot: P3 (Khu dân cư cạnh mỏ kẽm)
+2026-05-11 16:01:55,477  INFO      src.transformer.hydro_transformer — HydrometTransformer initialized with torch backend
+2026-05-11 16:02:18,696  INFO      src.transformer.hydro_transformer — Training done. Best val loss: 324.7573
+2026-05-11 16:02:18,697  INFO      pipeline —     Transformer trained: 18 samples, backend=torch
+2026-05-11 16:02:18,699  INFO      src.kalman.kalman_4d — Running daily fusion framework: 2020-06-04 → 2023-12-31
+2026-05-11 16:02:25,684  INFO      src.kalman.kalman_4d — Fusion framework done: 1306 daily estimates
+2026-05-11 16:02:25,685  INFO      pipeline —     P3: 1306 daily estimates, E_max=15.7mm
+2026-05-11 16:02:27,070  INFO      src.visualization.plotter — Saved timeseries plot: D:\tinhtuc_insar_project\outputs\figures\timeseries_4d.png
+2026-05-11 16:02:27,071  INFO      pipeline —   → Phase 3 DONE
+2026-05-11 16:02:27,326  INFO      pipeline — ============================================================
+2026-05-11 16:02:27,327  INFO      pipeline — GIAI ĐOẠN 4: PHÂN TÍCH KINEMATICS
+2026-05-11 16:02:27,327  INFO      pipeline — ============================================================
+2026-05-11 16:02:27,337  INFO      pipeline —   MSS max: 52.59 ×10⁻³
+2026-05-11 16:02:27,337  INFO      pipeline —   DIL range: [-96.97, 99.60] ×10⁻³
+2026-05-11 16:02:27,345  INFO      src.kinematics.kinematics_analyzer — Thickness: max=200.0m, mean=43.6m
+2026-05-11 16:02:27,346  INFO      pipeline —   Thickness: max=200.0m, mean=43.7m
+2026-05-11 16:02:31,440  INFO      src.kinematics.kinematics_analyzer — ICA: 3 components extracted
+2026-05-11 16:02:31,510  INFO      src.kinematics.kinematics_analyzer — IC1: WTC(rainfall)=0.83, WTC(soil_moisture)=0.93
+2026-05-11 16:02:31,527  INFO      src.kinematics.kinematics_analyzer — IC2: WTC(rainfall)=0.83, WTC(soil_moisture)=0.93
+2026-05-11 16:02:31,545  INFO      src.kinematics.kinematics_analyzer — IC3: WTC(rainfall)=0.83, WTC(soil_moisture)=0.93
+2026-05-11 16:02:31,546  INFO      pipeline —   IC1: dominant_driver=soil_moisture, WTC_rain=0.83
+2026-05-11 16:02:31,546  INFO      pipeline —   IC2: dominant_driver=soil_moisture, WTC_rain=0.83
+2026-05-11 16:02:31,546  INFO      pipeline —   IC3: dominant_driver=soil_moisture, WTC_rain=0.83
+2026-05-11 16:02:31,552  WARNING   src.kinematics.kinematics_analyzer — ⚠ 106 alert events detected in east component
+2026-05-11 16:02:31,552  INFO      pipeline —   Early warning: 106 alert events detected
+2026-05-11 16:02:33,479  INFO      src.visualization.plotter — Saved strain invariants plot: D:\tinhtuc_insar_project\outputs\figures\strain_invariants.png
+2026-05-11 16:02:33,483  INFO      pipeline —   → Phase 4 DONE
+2026-05-11 16:02:33,484  INFO      pipeline — ============================================================
+2026-05-11 16:02:33,484  INFO      pipeline — GIAI ĐOẠN 5: BÁO CÁO KẾT QUẢ
+2026-05-11 16:02:33,485  INFO      pipeline — ============================================================
+2026-05-11 16:02:33,487  INFO      pipeline —   Report saved: D:\tinhtuc_insar_project\outputs\reports\summary_20260511_1602.txt
+2026-05-11 16:02:33,487  INFO      pipeline —   → Phase 5 DONE
+2026-05-11 16:02:33,488  INFO      pipeline — 
+📌 KỊCH BẢN 2/3: Sự kiện mưa lũ 28/09-01/10/2025
+2026-05-11 16:02:33,488  INFO      pipeline — ============================================================
+2026-05-11 16:02:33,489  INFO      pipeline — KỊCH BẢN: SỰ KIỆN MƯA LŨ 28/09 - 01/10/2025
+2026-05-11 16:02:33,489  INFO      pipeline — ============================================================
+2026-05-11 16:02:33,498  INFO      pipeline — 
+📡 Phân tích dữ liệu Sentinel-1...
+2026-05-11 16:02:33,499  INFO      src.flood_landslide.event_processor — Event: 2025-09-28 to 2025-10-01, Baseline: 2025-09-18 to 2025-09-25
+2026-05-11 16:02:33,548  INFO      src.flood_landslide.event_processor — Found 5 images for event processing
+2026-05-11 16:02:33,550  INFO      src.flood_landslide.event_processor —   2025-09-19 22:50:36: Orbit 91.0 (DESCENDING) - Slice 1.0
+2026-05-11 16:02:33,551  INFO      src.flood_landslide.event_processor —   2025-09-22 11:06:50: Orbit 128.0 (ASCENDING) - Slice 9.0
+2026-05-11 16:02:33,551  INFO      src.flood_landslide.event_processor —   2025-09-29 10:58:25: Orbit 55.0 (ASCENDING) - Slice 8.0
+2026-05-11 16:02:33,552  INFO      src.flood_landslide.event_processor —   2025-09-29 10:58:50: Orbit 55.0 (ASCENDING) - Slice 9.0
+2026-05-11 16:02:33,553  INFO      src.flood_landslide.event_processor —   2025-10-01 22:50:36: Orbit 91.0 (DESCENDING) - Slice 1.0
+2026-05-11 16:02:33,554  INFO      src.flood_landslide.event_processor — 
+============================================================
+2026-05-11 16:02:33,554  INFO      src.flood_landslide.event_processor — SỰ KIỆN MƯA LŨ 28/09 - 01/10/2025
+2026-05-11 16:02:33,555  INFO      src.flood_landslide.event_processor — ============================================================
+2026-05-11 16:02:33,556  INFO      src.flood_landslide.event_processor — Tìm thấy 5 ảnh Sentinel-1:
+2026-05-11 16:02:33,557  INFO      src.flood_landslide.event_processor —   📡 2025-09-19 22:50 | Orbit 91.0 | DESCENDING
+2026-05-11 16:02:33,558  INFO      src.flood_landslide.event_processor —   📡 2025-09-22 11:06 | Orbit 128.0 | ASCENDING
+2026-05-11 16:02:33,559  INFO      src.flood_landslide.event_processor —   📡 2025-09-29 10:58 | Orbit 55.0 | ASCENDING
+2026-05-11 16:02:33,559  INFO      src.flood_landslide.event_processor —   📡 2025-09-29 10:58 | Orbit 55.0 | ASCENDING
+2026-05-11 16:02:33,560  INFO      src.flood_landslide.event_processor —   📡 2025-10-01 22:50 | Orbit 91.0 | DESCENDING
+2026-05-11 16:02:33,565  INFO      pipeline — ✓ Tìm thấy 5 ảnh
+2026-05-11 16:02:33,565  INFO      pipeline — 
+🛰️ Hướng dẫn chạy GEE:
+2026-05-11 16:02:33,566  INFO      pipeline —    1. Mở: gee_scripts/06_flood_event_20250929_1001.js
+2026-05-11 16:02:33,567  INFO      pipeline —    2. Chạy trong GEE Code Editor
+2026-05-11 16:02:33,567  INFO      pipeline —    3. Tải kết quả về outputs/events/20250928_1001/
+2026-05-11 16:02:33,567  INFO      pipeline — 
+📊 Tốc độ sụt lún (SBAS 2014-2026):
+2026-05-11 16:02:33,568  INFO      pipeline —    - Dữ liệu: S1_Metadata_TinhTuc_2014_to_Now.csv
+2026-05-11 16:02:33,568  INFO      pipeline —    - Orbit 55: 543 ảnh (2015-2026)
+2026-05-11 16:02:33,568  INFO      pipeline —    - Orbit 91: 319 ảnh (2015-2026)
+2026-05-11 16:02:33,569  INFO      pipeline —    - Orbit 128: 268 ảnh (2017-2026)
+2026-05-11 16:02:33,569  INFO      pipeline —    → Sử dụng: ASF HyP3 + MintPy (xem docs/)
+2026-05-11 16:02:33,575  INFO      pipeline — 
+✅ Cấu hình sự kiện đã lưu: D:\tinhtuc_insar_project\outputs\events\20250928_1001/event_config.json
+2026-05-11 16:02:33,575  INFO      pipeline — 
+📌 KỊCH BẢN 3/3: SBAS Sụt lún 2014-2026
+2026-05-11 16:02:33,576  INFO      pipeline —    Sử dụng: ASF HyP3 + MintPy
+2026-05-11 16:02:33,577  INFO      pipeline —    Dữ liệu: S1_Metadata_TinhTuc_2014_to_Now.csv
+2026-05-11 16:02:33,577  INFO      pipeline —    → Xem hướng dẫn trong docs/
+2026-05-11 16:02:33,578  INFO      pipeline — 
+✅  Pipeline hoàn thành trong 557.2s
+2026-05-11 16:02:33,578  INFO      pipeline —     Kết quả tại: D:\tinhtuc_insar_project\outputs
+2026-05-11 16:11:54,451  INFO      pipeline — ▶▶▶  InSAR Tĩnh Túc Pipeline  ◀◀◀
+2026-05-11 16:11:54,452  INFO      pipeline —     Root: D:\tinhtuc_insar_project
+2026-05-11 16:11:54,453  INFO      pipeline —     Started: 2026-05-11 16:11:54
+2026-05-11 16:11:54,454  INFO      pipeline — 
+============================================================
+2026-05-11 16:11:54,454  INFO      pipeline — 🚀 CHẠY TẤT CẢ 3 KỊCH BẢN
+2026-05-11 16:11:54,454  INFO      pipeline — ============================================================
+2026-05-11 16:11:54,454  INFO      pipeline — 
+📌 KỊCH BẢN 1/3: Pipeline mặc định (P-SBAS + 4D Kalman)
+2026-05-11 16:11:54,454  INFO      pipeline — ============================================================
+2026-05-11 16:11:54,454  INFO      pipeline — GIAI ĐOẠN 1: THU THẬP & CHUẨN BỊ DỮ LIỆU
+2026-05-11 16:11:54,454  INFO      pipeline — ============================================================
+2026-05-11 16:11:54,490  INFO      pipeline —   Dữ liệu đã xử lý sẵn có — bỏ qua bước ingest GEE.
+2026-05-11 16:11:54,494  INFO      pipeline —   Loaded DEM shape: (50, 50), range: [583.3, 1429.3]m
+2026-05-11 16:11:54,495  INFO      pipeline —   Loaded displacement shape: (48, 50, 50), time points: 48
+2026-05-11 16:11:54,495  INFO      pipeline —   Velocity range: [-16.7, 3.3] mm/yr
+2026-05-11 16:11:54,495  INFO      pipeline —   Loading real hydro data from ERA5 via GEE...
+2026-05-11 16:11:58,267  WARNING   googleapiclient.http — Encountered 403 Forbidden with reason "PERMISSION_DENIED"
+2026-05-11 16:13:21,137  WARNING   googleapiclient.http — Sleeping 1.42 seconds before retry 1 of 5 for request: POST https://earthengine.googleapis.com/v1/projects/earthengine-legacy/value:compute?prettyPrint=false&alt=json, after 503
+2026-05-11 16:14:08,104  WARNING   googleapiclient.http — Sleeping 0.98 seconds before retry 1 of 5 for request: POST https://earthengine.googleapis.com/v1/projects/earthengine-legacy/value:compute?prettyPrint=false&alt=json, after 503
+2026-05-11 16:15:37,830  WARNING   googleapiclient.http — Sleeping 1.10 seconds before retry 1 of 5 for request: POST https://earthengine.googleapis.com/v1/projects/earthengine-legacy/value:compute?prettyPrint=false&alt=json, after 503
+2026-05-11 17:09:12,976  INFO      pipeline — ▶▶▶  InSAR Tĩnh Túc Pipeline  ◀◀◀
+2026-05-11 17:09:12,976  INFO      pipeline —     Root: D:\tinhtuc_insar_project
+2026-05-11 17:09:12,977  INFO      pipeline —     Started: 2026-05-11 17:09:12
+2026-05-11 17:09:12,978  INFO      pipeline — 
+📊 KỊCH BẢN: SUBSIDENCE PROXY DETECTION (CẤP 1+2)
+2026-05-11 17:09:12,978  INFO      pipeline —    Cấp 1: Backscatter Trend Analysis (GEE)
+2026-05-11 17:09:12,978  INFO      pipeline —    Cấp 2: Offset Tracking (~0.5m)
+2026-05-11 17:09:12,978  INFO      pipeline —    Dữ liệu: GRD từ GEE
+2026-05-11 17:09:12,978  INFO      pipeline —    Độ chính xác: qualitative → ~0.5m
+2026-05-11 17:09:12,978  INFO      pipeline —    ⚠️ Đây là phát hiện gián tiếp, KHÔNG phải đo mm-level
+2026-05-11 17:09:12,978  INFO      pipeline —    → Chạy GEE script: gee_scripts/07_subsidence_proxy_level1.js
+2026-05-11 17:09:12,978  INFO      pipeline — 
+✅  Pipeline hoàn thành trong 0.0s
+2026-05-11 17:09:12,978  INFO      pipeline —     Kết quả tại: D:\tinhtuc_insar_project\outputs
+2026-05-11 17:11:46,546  INFO      pipeline — ▶▶▶  InSAR Tĩnh Túc Pipeline  ◀◀◀
+2026-05-11 17:11:46,546  INFO      pipeline —     Root: D:\tinhtuc_insar_project
+2026-05-11 17:11:46,547  INFO      pipeline —     Started: 2026-05-11 17:11:46
+2026-05-11 17:11:46,547  INFO      pipeline — 
+============================================================
+2026-05-11 17:11:46,547  INFO      pipeline — 🚀 CHẠY TẤT CẢ 3 KỊCH BẢN
+2026-05-11 17:11:46,547  INFO      pipeline — ============================================================
+2026-05-11 17:11:46,547  INFO      pipeline — 
+📌 KỊCH BẢN 1/3: Pipeline mặc định (P-SBAS + 4D Kalman)
+2026-05-11 17:11:46,547  INFO      pipeline — ============================================================
+2026-05-11 17:11:46,547  INFO      pipeline — GIAI ĐOẠN 1: THU THẬP & CHUẨN BỊ DỮ LIỆU
+2026-05-11 17:11:46,548  INFO      pipeline — ============================================================
+2026-05-11 17:11:46,586  INFO      pipeline —   Dữ liệu đã xử lý sẵn có — bỏ qua bước ingest GEE.
+2026-05-11 17:11:46,592  INFO      pipeline —   Loaded DEM shape: (50, 50), range: [583.3, 1429.3]m
+2026-05-11 17:11:46,592  INFO      pipeline —   Loaded displacement shape: (48, 50, 50), time points: 48
+2026-05-11 17:11:46,593  INFO      pipeline —   Velocity range: [-16.7, 3.3] mm/yr
+2026-05-11 17:11:46,593  INFO      pipeline —   Loading real hydro data from ERA5 via GEE...
+2026-05-11 17:11:51,843  WARNING   googleapiclient.http — Encountered 403 Forbidden with reason "PERMISSION_DENIED"
+2026-05-11 17:17:53,985  INFO      pipeline —   ERA5 rainfall: monthly range [0.3, 14.9] mm/month
+2026-05-11 17:17:53,986  INFO      pipeline —   ERA5 soil moisture: range [0.294, 0.479] m³/m³
+2026-05-11 17:17:53,987  INFO      pipeline —   Hydro data: 48 days, mean rainfall=5.5mm/day
+2026-05-11 17:17:53,987  INFO      pipeline —   Hotspots configured: ['P1', 'P2', 'P3']
+2026-05-11 17:17:53,987  INFO      pipeline —   → Phase 1 DONE
+2026-05-11 17:17:53,988  INFO      pipeline — ============================================================
+2026-05-11 17:17:53,988  INFO      pipeline — GIAI ĐOẠN 2: P-SBAS + PHÂN CỤM + PHÂN LOẠI
+2026-05-11 17:17:53,988  INFO      pipeline — ============================================================
+2026-05-11 17:17:54,332  INFO      pipeline —   Using real velocity from GEE: shape (50, 50), range [-16.7, 3.3] mm/yr
+2026-05-11 17:17:54,332  INFO      pipeline —   Displacement timeseries: 48 time points
+2026-05-11 17:17:54,333  INFO      pipeline —   2D decomposition: VV range [-3.1, 2.8]
+2026-05-11 17:17:54,334  INFO      pipeline —   CRB: mean=3.5mm, max=17.9mm
+2026-05-11 17:17:54,334  INFO      src.clustering.spatial_clustering — Active pixels (|v| ≥ 10 mm/yr): 121/2500 (4.8%)
+2026-05-11 17:17:54,337  INFO      src.clustering.spatial_clustering — Spatial clustering: 1 MACs found (min size = 3 pixels)
+2026-05-11 17:17:54,337  INFO      src.clustering.spatial_clustering — Active pixels (|v| ≥ 10 mm/yr): 80/2500 (3.2%)
+2026-05-11 17:17:54,339  INFO      src.clustering.spatial_clustering — Spatial clustering: 1 MACs found (min size = 3 pixels)
+2026-05-11 17:17:54,340  INFO      src.clustering.spatial_clustering — Merged MACs: 1 total (1 with both orbits)
+2026-05-11 17:17:54,340  INFO      pipeline —   MACs found: asc=1, desc=1, merged=1
+2026-05-11 17:17:54,340  INFO      src.classification.mac_classifier — Classification summary (1 MACs):
+2026-05-11 17:17:54,340  INFO      src.classification.mac_classifier —   potential_landslide      :    1 (100.0%)  [confidence=1]
+2026-05-11 17:17:54,341  INFO      src.utils.io_utils — Saved velocity map: D:\tinhtuc_insar_project\outputs\maps\velocity_asc.bin (50, 50)
+2026-05-11 17:17:54,342  INFO      src.utils.io_utils — Saved 1 MACs to D:\tinhtuc_insar_project\outputs\maps\mac_database.csv
+2026-05-11 17:17:54,654  INFO      src.visualization.plotter — Saved velocity map: D:\tinhtuc_insar_project\outputs\figures\velocity_asc.png
+2026-05-11 17:17:54,983  INFO      src.visualization.plotter — Saved MAC classification map: D:\tinhtuc_insar_project\outputs\figures\mac_classification.png
+2026-05-11 17:17:54,984  INFO      pipeline —   → Phase 2 DONE
+2026-05-11 17:17:54,984  INFO      pipeline — ============================================================
+2026-05-11 17:17:54,984  INFO      pipeline — GIAI ĐOẠN 3: GIÁM SÁT 4D (FUSION FRAMEWORK)
+2026-05-11 17:17:54,984  INFO      pipeline — ============================================================
+2026-05-11 17:17:56,775  INFO      src.transformer.hydro_transformer — PyTorch available — using full Transformer architecture
+2026-05-11 17:17:56,777  INFO      pipeline —   Processing hotspot: P1 (Sườn dốc khu khai thác thiếc phía Đông)
+2026-05-11 17:17:56,791  INFO      src.transformer.hydro_transformer — HydrometTransformer initialized with torch backend
+2026-05-11 17:18:05,862  INFO      src.transformer.hydro_transformer — Training done. Best val loss: 444.9299
+2026-05-11 17:18:05,863  INFO      pipeline —     Transformer trained: 18 samples, backend=torch
+2026-05-11 17:18:05,868  INFO      src.kalman.kalman_4d — Running daily fusion framework: 2020-06-04 → 2023-12-31
+2026-05-11 17:18:07,608  INFO      src.kalman.kalman_4d — Fusion framework done: 1306 daily estimates
+2026-05-11 17:18:07,609  INFO      pipeline —     P1: 1306 daily estimates, E_max=70.7mm
+2026-05-11 17:18:07,609  INFO      pipeline —   Processing hotspot: P2 (Talus slope có dấu hiệu trượt)
+2026-05-11 17:18:07,613  INFO      src.transformer.hydro_transformer — HydrometTransformer initialized with torch backend
+2026-05-11 17:18:15,608  INFO      src.transformer.hydro_transformer — Training done. Best val loss: 420.9832
+2026-05-11 17:18:15,608  INFO      pipeline —     Transformer trained: 18 samples, backend=torch
+2026-05-11 17:18:15,609  INFO      src.kalman.kalman_4d — Running daily fusion framework: 2020-06-04 → 2023-12-31
+2026-05-11 17:18:17,502  INFO      src.kalman.kalman_4d — Fusion framework done: 1306 daily estimates
+2026-05-11 17:18:17,503  INFO      pipeline —     P2: 1306 daily estimates, E_max=121.9mm
+2026-05-11 17:18:17,503  INFO      pipeline —   Processing hotspot: P3 (Khu dân cư cạnh mỏ kẽm)
+2026-05-11 17:18:17,506  INFO      src.transformer.hydro_transformer — HydrometTransformer initialized with torch backend
+2026-05-11 17:18:25,748  INFO      src.transformer.hydro_transformer — Training done. Best val loss: 244.0741
+2026-05-11 17:18:25,748  INFO      pipeline —     Transformer trained: 18 samples, backend=torch
+2026-05-11 17:18:25,749  INFO      src.kalman.kalman_4d — Running daily fusion framework: 2020-06-04 → 2023-12-31
+2026-05-11 17:18:27,945  INFO      src.kalman.kalman_4d — Fusion framework done: 1306 daily estimates
+2026-05-11 17:18:27,946  INFO      pipeline —     P3: 1306 daily estimates, E_max=12.8mm
+2026-05-11 17:18:28,473  INFO      src.visualization.plotter — Saved timeseries plot: D:\tinhtuc_insar_project\outputs\figures\timeseries_4d.png
+2026-05-11 17:18:28,474  INFO      pipeline —   → Phase 3 DONE
+2026-05-11 17:18:28,474  INFO      pipeline — ============================================================
+2026-05-11 17:18:28,475  INFO      pipeline — GIAI ĐOẠN 4: PHÂN TÍCH KINEMATICS
+2026-05-11 17:18:28,475  INFO      pipeline — ============================================================
+2026-05-11 17:18:28,480  INFO      pipeline —   MSS max: 52.32 ×10⁻³
+2026-05-11 17:18:28,480  INFO      pipeline —   DIL range: [-96.47, 99.07] ×10⁻³
+2026-05-11 17:18:28,481  INFO      src.kinematics.kinematics_analyzer — Thickness: max=200.0m, mean=43.6m
+2026-05-11 17:18:28,481  INFO      pipeline —   Thickness: max=200.0m, mean=43.7m
+2026-05-11 17:18:30,185  INFO      src.kinematics.kinematics_analyzer — ICA: 3 components extracted
+2026-05-11 17:18:30,212  INFO      src.kinematics.kinematics_analyzer — IC1: WTC(rainfall)=0.85, WTC(soil_moisture)=0.89
+2026-05-11 17:18:30,216  INFO      src.kinematics.kinematics_analyzer — IC2: WTC(rainfall)=0.85, WTC(soil_moisture)=0.89
+2026-05-11 17:18:30,221  INFO      src.kinematics.kinematics_analyzer — IC3: WTC(rainfall)=0.85, WTC(soil_moisture)=0.89
+2026-05-11 17:18:30,221  INFO      pipeline —   IC1: dominant_driver=soil_moisture, WTC_rain=0.85
+2026-05-11 17:18:30,221  INFO      pipeline —   IC2: dominant_driver=soil_moisture, WTC_rain=0.85
+2026-05-11 17:18:30,221  INFO      pipeline —   IC3: dominant_driver=soil_moisture, WTC_rain=0.85
+2026-05-11 17:18:30,222  WARNING   src.kinematics.kinematics_analyzer — ⚠ 106 alert events detected in east component
+2026-05-11 17:18:30,223  INFO      pipeline —   Early warning: 106 alert events detected
+2026-05-11 17:18:30,785  INFO      src.visualization.plotter — Saved strain invariants plot: D:\tinhtuc_insar_project\outputs\figures\strain_invariants.png
+2026-05-11 17:18:30,788  INFO      pipeline —   → Phase 4 DONE
+2026-05-11 17:18:30,789  INFO      pipeline — ============================================================
+2026-05-11 17:18:30,789  INFO      pipeline — GIAI ĐOẠN 5: BÁO CÁO KẾT QUẢ
+2026-05-11 17:18:30,789  INFO      pipeline — ============================================================
+2026-05-11 17:18:30,790  INFO      pipeline —   Report saved: D:\tinhtuc_insar_project\outputs\reports\summary_20260511_1718.txt
+2026-05-11 17:18:30,790  INFO      pipeline —   → Phase 5 DONE
+2026-05-11 17:18:30,790  INFO      pipeline — 
+📌 KỊCH BẢN 2/3: Sự kiện mưa lũ 28/09-01/10/2025
+2026-05-11 17:18:30,790  INFO      pipeline — ============================================================
+2026-05-11 17:18:30,791  INFO      pipeline — KỊCH BẢN: SỰ KIỆN MƯA LŨ 28/09 - 01/10/2025
+2026-05-11 17:18:30,791  INFO      pipeline — ============================================================
+2026-05-11 17:18:30,795  INFO      pipeline — 
+📡 Phân tích dữ liệu Sentinel-1...
+2026-05-11 17:18:30,795  INFO      src.flood_landslide.event_processor — Event: 2025-09-28 to 2025-10-01, Baseline: 2025-09-18 to 2025-09-25
+2026-05-11 17:18:30,817  INFO      src.flood_landslide.event_processor — Found 5 images for event processing
+2026-05-11 17:18:30,817  INFO      src.flood_landslide.event_processor —   2025-09-19 22:50:36: Orbit 91.0 (DESCENDING) - Slice 1.0
+2026-05-11 17:18:30,818  INFO      src.flood_landslide.event_processor —   2025-09-22 11:06:50: Orbit 128.0 (ASCENDING) - Slice 9.0
+2026-05-11 17:18:30,818  INFO      src.flood_landslide.event_processor —   2025-09-29 10:58:25: Orbit 55.0 (ASCENDING) - Slice 8.0
+2026-05-11 17:18:30,818  INFO      src.flood_landslide.event_processor —   2025-09-29 10:58:50: Orbit 55.0 (ASCENDING) - Slice 9.0
+2026-05-11 17:18:30,818  INFO      src.flood_landslide.event_processor —   2025-10-01 22:50:36: Orbit 91.0 (DESCENDING) - Slice 1.0
+2026-05-11 17:18:30,819  INFO      src.flood_landslide.event_processor — 
+============================================================
+2026-05-11 17:18:30,819  INFO      src.flood_landslide.event_processor — SỰ KIỆN MƯA LŨ 28/09 - 01/10/2025
+2026-05-11 17:18:30,819  INFO      src.flood_landslide.event_processor — ============================================================
+2026-05-11 17:18:30,819  INFO      src.flood_landslide.event_processor — Tìm thấy 5 ảnh Sentinel-1:
+2026-05-11 17:18:30,820  INFO      src.flood_landslide.event_processor —   📡 2025-09-19 22:50 | Orbit 91.0 | DESCENDING
+2026-05-11 17:18:30,820  INFO      src.flood_landslide.event_processor —   📡 2025-09-22 11:06 | Orbit 128.0 | ASCENDING
+2026-05-11 17:18:30,820  INFO      src.flood_landslide.event_processor —   📡 2025-09-29 10:58 | Orbit 55.0 | ASCENDING
+2026-05-11 17:18:30,821  INFO      src.flood_landslide.event_processor —   📡 2025-09-29 10:58 | Orbit 55.0 | ASCENDING
+2026-05-11 17:18:30,821  INFO      src.flood_landslide.event_processor —   📡 2025-10-01 22:50 | Orbit 91.0 | DESCENDING
+2026-05-11 17:18:30,823  INFO      pipeline — ✓ Tìm thấy 5 ảnh
+2026-05-11 17:18:30,824  INFO      pipeline — 
+🛰️ Hướng dẫn chạy GEE:
+2026-05-11 17:18:30,824  INFO      pipeline —    1. Mở: gee_scripts/06_flood_event_20250929_1001.js
+2026-05-11 17:18:30,824  INFO      pipeline —    2. Chạy trong GEE Code Editor
+2026-05-11 17:18:30,824  INFO      pipeline —    3. Tải kết quả về outputs/events/20250928_1001/
+2026-05-11 17:18:30,824  INFO      pipeline — 
+📊 Tốc độ sụt lún (SBAS 2014-2026):
+2026-05-11 17:18:30,824  INFO      pipeline —    - Dữ liệu: S1_Metadata_TinhTuc_2014_to_Now.csv
+2026-05-11 17:18:30,824  INFO      pipeline —    - Orbit 55: 543 ảnh (2015-2026)
+2026-05-11 17:18:30,824  INFO      pipeline —    - Orbit 91: 319 ảnh (2015-2026)
+2026-05-11 17:18:30,825  INFO      pipeline —    - Orbit 128: 268 ảnh (2017-2026)
+2026-05-11 17:18:30,825  INFO      pipeline —    → Sử dụng: ASF HyP3 + MintPy (xem docs/)
+2026-05-11 17:18:30,827  INFO      pipeline — 
+✅ Cấu hình sự kiện đã lưu: D:\tinhtuc_insar_project\outputs\events\20250928_1001/event_config.json
+2026-05-11 17:18:30,828  INFO      pipeline — 
+📌 KỊCH BẢN 3/3: SBAS Sụt lún 2014-2026
+2026-05-11 17:18:30,828  INFO      pipeline —    Sử dụng: ASF HyP3 + MintPy
+2026-05-11 17:18:30,828  INFO      pipeline —    Dữ liệu: S1_Metadata_TinhTuc_2014_to_Now.csv
+2026-05-11 17:18:30,828  INFO      pipeline —    → Xem hướng dẫn trong docs/
+2026-05-11 17:18:30,828  INFO      pipeline — 
+✅  Pipeline hoàn thành trong 404.3s
+2026-05-11 17:18:30,828  INFO      pipeline —     Kết quả tại: D:\tinhtuc_insar_project\outputs

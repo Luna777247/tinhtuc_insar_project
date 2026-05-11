@@ -91,6 +91,7 @@ def run_phase_1_data_preparation():
         lon_grid = np.load(processed_dir / "lon_grid.npy")
     else:
         logger.info("  Tạo dữ liệu tổng hợp (synthetic mode)...")
+        from config.settings import AOI
         rng_syn = np.random.default_rng(42)
         H, W = 50, 50
         x_g, y_g = np.meshgrid(np.linspace(0, 1, W), np.linspace(0, 1, H))
@@ -106,8 +107,9 @@ def run_phase_1_data_preparation():
         displacement = np.array([velocity_true * (d / 365.25) + rng_syn.normal(0, 0.5, (H, W))
                                   for d in time_days], dtype=np.float32)
         source_type_map = rng_syn.integers(0, 7, (H, W), dtype=np.int16)
-        lon_min, lon_max = 105.85, 105.95
-        lat_min, lat_max = 22.65, 22.75
+        # Sử dụng AOI từ GeoJSON thay vì hard-coded
+        lon_min, lon_max = AOI["lon_min"], AOI["lon_max"]
+        lat_min, lat_max = AOI["lat_min"], AOI["lat_max"]
         lon_grid = np.linspace(lon_min, lon_max, W, dtype=np.float32)[np.newaxis, :] * np.ones((H, 1), dtype=np.float32)
         lat_grid = np.linspace(lat_max, lat_min, H, dtype=np.float32)[:, np.newaxis] * np.ones((1, W), dtype=np.float32)
         processed_dir.mkdir(parents=True, exist_ok=True)
@@ -120,7 +122,8 @@ def run_phase_1_data_preparation():
         np.save(processed_dir / "source_type_map.npy", source_type_map)
         np.save(processed_dir / "lat_grid.npy", lat_grid)
         np.save(processed_dir / "lon_grid.npy", lon_grid)
-        logger.info("  Synthetic data generated and saved.")
+        logger.info(f"  Synthetic data generated with AOI: [{lon_min}, {lat_min}, {lon_max}, {lat_max}]")
+        logger.info("  Synthetic data saved.")
 
     logger.info(f"  Loaded DEM shape: {dem.shape}, range: [{dem.min():.1f}, {dem.max():.1f}]m")
     logger.info(f"  Loaded displacement shape: {displacement.shape}, time points: {len(time_days)}")
@@ -673,33 +676,203 @@ def run_phase_5_report(results_all_hotspots, classified_macs, alerts):
 
 
 # ─────────────────────────────────────────────────────────────
+# KỊCH BẢN ĐẶC BIỆT: SỰ KIỆN MƯA LŨ 28/09 - 01/10/2025
+# ─────────────────────────────────────────────────────────────
+
+def run_flood_landslide_event_20250928_1001():
+    """
+    Xử lý sự kiện mưa lũ 28/09 - 01/10/2025.
+    
+    Kết hợp dữ liệu:
+    - 29/09/2025: Orbit 55 (ASC) - phát hiện ngập lụt
+    - 01/10/2025: Orbit 91 (DESC) - phát hiện sạt lở
+    
+    Tốc độ sụt lún: Sử dụng toàn bộ dữ liệu CSV 2014-2026 cho SBAS.
+    """
+    logger.info("=" * 60)
+    logger.info("KỊCH BẢN: SỰ KIỆN MƯA LŨ 28/09 - 01/10/2025")
+    logger.info("=" * 60)
+    
+    from src.flood_landslide.event_processor import process_flood_event_2025
+    from src.flood_landslide.flood_detector import FloodDetector
+    from src.flood_landslide.landslide_detector import LandslideDetector
+    from src.flood_landslide.risk_integrator import RiskIntegrator, AlertSystem
+    
+    # 1. Phân tích sự kiện
+    logger.info("\n📡 Phân tích dữ liệu Sentinel-1...")
+    event_info = process_flood_event_2025()
+    
+    if "error" in event_info:
+        logger.error("Không thể xử lý sự kiện!")
+        return None
+    
+    logger.info(f"✓ Tìm thấy {len(event_info['available_images'])} ảnh")
+    
+    # 2. Thông tin cho GEE
+    logger.info("\n🛰️ Hướng dẫn chạy GEE:")
+    logger.info("   1. Mở: gee_scripts/06_flood_event_20250929_1001.js")
+    logger.info("   2. Chạy trong GEE Code Editor")
+    logger.info("   3. Tải kết quả về outputs/events/20250928_1001/")
+    
+    # 3. Tốc độ sụt lún (SBAS toàn thời kỳ)
+    logger.info("\n📊 Tốc độ sụt lún (SBAS 2014-2026):")
+    logger.info("   - Dữ liệu: S1_Metadata_TinhTuc_2014_to_Now.csv")
+    logger.info("   - Orbit 55: 543 ảnh (2015-2026)")
+    logger.info("   - Orbit 91: 319 ảnh (2015-2026)")
+    logger.info("   - Orbit 128: 268 ảnh (2017-2026)")
+    logger.info("   → Sử dụng: ASF HyP3 + MintPy (xem docs/)")
+    
+    # 4. Tạo cấu hình xử lý
+    config = {
+        "event_name": "Mưa lũ 28/09-01/10/2025",
+        "period": {
+            "start": "2025-09-28",
+            "end": "2025-10-01"
+        },
+        "images": event_info['available_images'][['date', 'relativeOrbit', 'orbit']].to_dict('records'),
+        "gee_script": "gee_scripts/06_flood_event_20250929_1001.js",
+        "output_dir": "outputs/events/20250928_1001",
+        "subsidence_data": "S1_Metadata_TinhTuc_2014_to_Now.csv"
+    }
+    
+    # Lưu cấu hình
+    import json
+    out_dir = ROOT / "outputs" / "events" / "20250928_1001"
+    out_dir.mkdir(parents=True, exist_ok=True)
+    
+    with open(out_dir / "event_config.json", 'w', encoding='utf-8') as f:
+        json.dump(config, f, indent=2, default=str)
+    
+    logger.info(f"\n✅ Cấu hình sự kiện đã lưu: {out_dir}/event_config.json")
+    
+    return config
+
+
+# ─────────────────────────────────────────────────────────────
 # MAIN ENTRY POINT
 # ─────────────────────────────────────────────────────────────
 
 def main():
+    import argparse
+    
+    parser = argparse.ArgumentParser(
+        description="InSAR Tĩnh Túc Pipeline",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Ví dụ:
+  python run_pipeline.py                      # Chạy pipeline mặc định
+  python run_pipeline.py --event 20250928     # Chạy kịch bản sự kiện mưa lũ
+  python run_pipeline.py --subsidence         # Chạy SBAS toàn thời kỳ (Cấp 3)
+  python run_pipeline.py --subsidence-proxy   # Chạy Proxy Detection (Cấp 1+2)
+        """
+    )
+    
+    parser.add_argument(
+        "--event",
+        choices=["20250928", "flood-2025"],
+        help="Chạy kịch bản sự kiện mưa lũ 28/09-01/10/2025"
+    )
+    
+    parser.add_argument(
+        "--subsidence",
+        action="store_true",
+        help="Chạy phân tích sụt lún SBAS chuẩn (Cấp 3: ASF HyP3 + MintPy, 3-10 mm/năm)"
+    )
+    
+    parser.add_argument(
+        "--subsidence-proxy",
+        action="store_true",
+        dest="subsidence_proxy",
+        help="Chạy phân tích sụt lún proxy (Cấp 1+2: GEE GRD, hotspot screening)"
+    )
+    
+    parser.add_argument(
+        "--all",
+        action="store_true",
+        help="Chạy TẤT CẢ kịch bản (pipeline + event + subsidence)"
+    )
+    
+    args = parser.parse_args()
+    
     logger.info("▶▶▶  InSAR Tĩnh Túc Pipeline  ◀◀◀")
     logger.info(f"    Root: {ROOT}")
     logger.info(f"    Started: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
 
     # Tạo thư mục output
     for d in ["outputs/maps", "outputs/figures", "outputs/timeseries",
-              "outputs/reports", "logs"]:
+              "outputs/reports", "outputs/events", "logs"]:
         (ROOT / d).mkdir(parents=True, exist_ok=True)
 
     t_start = time.time()
+    
+    # ── Chọn kịch bản ──
+    if args.all:
+        # === CHẠY TẤT CẢ KỊCH BẢN ===
+        logger.info("\n" + "="*60)
+        logger.info("🚀 CHẠY TẤT CẢ 3 KỊCH BẢN")
+        logger.info("="*60)
+        
+        # 1. Pipeline mặc định (5 phases)
+        logger.info("\n📌 KỊCH BẢN 1/3: Pipeline mặc định (P-SBAS + 4D Kalman)")
+        hydro_data, hydro_dates, dem, slope, aspect, displacement, time_days, velocity_true, source_type_map, lat_grid, lon_grid = \
+            run_phase_1_data_preparation()
 
-    # ── Chạy từng giai đoạn ──
-    hydro_data, hydro_dates, dem, slope, aspect, displacement, time_days, velocity_true, source_type_map, lat_grid, lon_grid = \
-        run_phase_1_data_preparation()
+        vel_asc, vel_desc, ts, dates, dem, slope, classified_macs = \
+            run_phase_2_sbas_clustering(dem, slope, aspect, displacement, time_days, velocity_true, source_type_map, lat_grid, lon_grid)
 
-    vel_asc, vel_desc, ts, dates, dem, slope, classified_macs = \
-        run_phase_2_sbas_clustering(dem, slope, aspect, displacement, time_days, velocity_true, source_type_map, lat_grid, lon_grid)
+        results_4d = run_phase_3_fusion_4d(dem, slope, dates, hydro_data, hydro_dates)
 
-    results_4d = run_phase_3_fusion_4d(dem, slope, dates, hydro_data, hydro_dates)
+        strain, thickness, alerts = run_phase_4_kinematics(dem, slope, results_4d)
 
-    strain, thickness, alerts = run_phase_4_kinematics(dem, slope, results_4d)
+        run_phase_5_report(results_4d, classified_macs, alerts)
+        
+        # 2. Sự kiện mưa lũ 2025
+        logger.info("\n📌 KỊCH BẢN 2/3: Sự kiện mưa lũ 28/09-01/10/2025")
+        run_flood_landslide_event_20250928_1001()
+        
+        # 3. Thông tin SBAS
+        logger.info("\n📌 KỊCH BẢN 3/3: SBAS Sụt lún 2014-2026")
+        logger.info("   Sử dụng: ASF HyP3 + MintPy")
+        logger.info("   Dữ liệu: S1_Metadata_TinhTuc_2014_to_Now.csv")
+        logger.info("   → Xem hướng dẫn trong docs/")
+        
+    elif args.event == "20250928" or args.event == "flood-2025":
+        # Kịch bản sự kiện mưa lũ
+        run_flood_landslide_event_20250928_1001()
+        
+    elif args.subsidence:
+        # Kịch bản sụt lún SBAS (Cấp 3)
+        logger.info("\n📊 KỊCH BẢN: SBAS SỤT LÚN 2014-2026 (CẤP 3)")
+        logger.info("   Phương pháp: SBAS-InSAR chuẩn")
+        logger.info("   Công cụ: ASF HyP3 + MintPy")
+        logger.info("   Dữ liệu: SLC từ ASF")
+        logger.info("   Độ chính xác: 3-10 mm/năm")
+        logger.info("   → Xem hướng dẫn trong docs/Sentinel1_TinhTuc_PhanTich_KichBan_ChiTiet.md")
+        logger.info("   → Script: scripts/sbas_workflow/")
+        
+    elif args.subsidence_proxy:
+        # Kịch bản sụt lún proxy (Cấp 1+2)
+        logger.info("\n📊 KỊCH BẢN: SUBSIDENCE PROXY DETECTION (CẤP 1+2)")
+        logger.info("   Cấp 1: Backscatter Trend Analysis (GEE)")
+        logger.info("   Cấp 2: Offset Tracking (~0.5m)")
+        logger.info("   Dữ liệu: GRD từ GEE")
+        logger.info("   Độ chính xác: qualitative → ~0.5m")
+        logger.info("   ⚠️ Đây là phát hiện gián tiếp, KHÔNG phải đo mm-level")
+        logger.info("   → Chạy GEE script: gee_scripts/07_subsidence_proxy_level1.js")
+        
+    else:
+        # Pipeline mặc định
+        hydro_data, hydro_dates, dem, slope, aspect, displacement, time_days, velocity_true, source_type_map, lat_grid, lon_grid = \
+            run_phase_1_data_preparation()
 
-    run_phase_5_report(results_4d, classified_macs, alerts)
+        vel_asc, vel_desc, ts, dates, dem, slope, classified_macs = \
+            run_phase_2_sbas_clustering(dem, slope, aspect, displacement, time_days, velocity_true, source_type_map, lat_grid, lon_grid)
+
+        results_4d = run_phase_3_fusion_4d(dem, slope, dates, hydro_data, hydro_dates)
+
+        strain, thickness, alerts = run_phase_4_kinematics(dem, slope, results_4d)
+
+        run_phase_5_report(results_4d, classified_macs, alerts)
 
     elapsed = time.time() - t_start
     logger.info(f"\n✅  Pipeline hoàn thành trong {elapsed:.1f}s")

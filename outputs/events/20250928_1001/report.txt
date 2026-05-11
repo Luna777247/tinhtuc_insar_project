@@ -1,0 +1,44 @@
+
+============================================================
+BÁO CÁO SỰ KIỆN MƯA LŨ (SYNTHETIC)
+Tĩnh Túc, Cao Bằng
+28/09/2025 - 01/10/2025
+============================================================
+
+1. TỔNG QUAN
+   - Ngày sự kiện: 28/09/2025 - 01/10/2025
+   - Dữ liệu: Sentinel-1 (Orbit 55: 29/09, Orbit 91: 01/10)
+   - Phương pháp: Change detection + Consensus
+
+2. NGẬP LỤT
+   - Diện tích xác nhận: 8.15 ha
+   - Số pixel: 815
+   - Vùng: Thung lũng phía Nam, trũng Đông Nam
+
+3. SẠT LỞ
+   - Diện tích phát hiện: 0.00 ha
+   - Số pixel: 0
+   - Vùng: Sườn Tây Bắc, sườn Đông (dốc 20-55°)
+
+4. BÃI THẢI MỎ
+   - Số vị trí: 3
+   - Diện tích: 3.00 ha
+   - Tọa độ: (20,25), (30,72), (25,85) [pixel]
+
+5. ĐIỂM NÓNG (HOTSPOTS)
+   - Tổng số: 0 vị trí
+
+6. PHÂN BỐ RỦI RO
+   - Normal (0): 8913 pixels
+   - Low (1): 1059 pixels
+   - Medium (2): 0 pixels
+   - High (3): 0 pixels
+   - Extreme (4): 28 pixels
+
+7. KHUYẾN NGHỊ
+
+============================================================
+Ghi chú: Đây là dữ liệu synthetic cho demo.
+Để có kết quả thực, chạy GEE script:
+  gee_scripts/06_flood_event_20250929_1001.js
+============================================================

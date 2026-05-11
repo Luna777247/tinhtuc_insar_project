@@ -51,22 +51,26 @@
 | Vùng nào ngập lụt hôm nay? | GEE Change Detection (3 track). Kết quả trong 2–4 giờ. | Miễn phí | Phần 3 |
 | Sạt lở ở đâu sau mưa lớn? | GEE Change Detection VH + NDVI. Kết quả trong 1 ngày. | Miễn phí | Phần 3 |
 | Mỏ có sụt lún > 5cm/năm? | ASF HyP3 + MintPy SBAS. Tự động, 2–4 tuần xử lý. | Miễn phí | Phần 4.5 |
-| Đo sụt lún mm/năm từ 2016? | PS-InSAR bằng SNAP + StaMPS. Chính xác <3mm. | MATLAB: ~2.000USD/năm | Phần 4.4C |
+| Đo sụt lún chính xác? | SBAS-InSAR (3-10 mm/năm) hoặc GEE Offset (>50cm). | Miễn phí | Phần 4.5 |
 | Bãi thải mỏ dịch chuyển bao nhiêu? | GEE Offset Tracking (>5cm) hoặc SBAS (mm). | Miễn phí | Phần 3+4 |
 | Tích hợp vào hệ thống quản lý? | GEE App + Google Sheet + alert tự động. | Miễn phí | Phần 8 |
 
 ---
 
-## **So sánh 3 Phương pháp Sụt lún**
+## **So sánh 2 Phương pháp Sụt lún (Khuyến nghị)**
 
-| **Tiêu chí** | **A. Offset Tracking (GRD)** | **B. SBAS-InSAR (SLC)** | **C. PS-InSAR (SLC)** |
-|-----------|------------------------|-------------------|------------------|
-| **Thời gian triển khai** | 1–3 ngày | 2–6 tuần | 1–3 tháng |
-| **Độ chính xác** | ~0.5m (thô cơ) | 3–10 mm/năm | <3 mm/năm |
-| **Nguồn dữ liệu** | GRD CSV-2 (có sẵn) | SLC từ ASF (download) | SLC từ ASF (download) |
-| **Công cụ** | GEE (browser) | ASF HyP3 + MintPy | SNAP + StaMPS |
-| **Phù hợp nhất** | Sạt lở lớn, sắp đột ngột | Sụt lún mở trung bình | Nghiên cứu dài hạn |
-| **Giới hạn lớn nhất** | Chi phát hiện >50cm | Cần SLC, không trên GEE | Phức tạp, cần kinh nghiệm |
+| **Tiêu chí** | **A. Offset Tracking (GRD)** | **B. SBAS-InSAR (SLC)** ⭐ |
+|-----------|------------------------|-------------------|
+| **Thời gian triển khai** | 1–3 ngày | 2–6 tuần |
+| **Độ chính xác** | ~0.5m (thô cơ) | **3–10 mm/năm** |
+| **Nguồn dữ liệu** | GRD CSV-2 (có sẵn trên GEE) | SLC từ ASF (download) |
+| **Công cụ** | GEE (browser) | **ASF HyP3 + MintPy** |
+| **Phù hợp nhất** | Sạt lở lớn, nhanh | **Sụt lún mỏ Tĩnh Túc** |
+| **Chi phí** | Miễn phí | **Miễn phí** |
+
+> **⭐ Khuyến nghị**: Dùng **SBAS-InSAR (B)** cho sụt lún Tĩnh Túc vì miễn phí, đủ chính xác (3-10 mm/năm), không cần MATLAB.
+>
+> **❌ Không khuyến nghị PS-InSAR**: Tốn ~2,000 USD/năm (MATLAB + StaMPS), phức tạp, chỉ cần cho nghiên cứu học thuật.
 
 ---
 
@@ -172,11 +176,105 @@ Trước khi đi sâu vào kỹ thuật, hãy hiểu cơ bản về SAR (Synthet
 
 **Kịch bản 3: Sụt lún bề mặt (Subsidence)**
 - Tại sao? Khai thác mỏ gây sụt lún dài hạn, cần theo dõi mm/năm.
-- Phương pháp: InSAR time-series (SBAS) vì đo độ dời chính xác.
+- **⚠️ QUAN TRỌNG: Có 3 cấp độ "sụt lún" khác nhau:**
+  - **Cấp 1 - Proxy (GEE):** Phát hiện vùng biến động/bất ổn qua backscatter → qualitative
+  - **Cấp 2 - Offset Tracking (GEE):** Dịch chuyển thô ~0.5m → relative deformation
+  - **Cấp 3 - True InSAR (SBAS/PSI):** Đo chính xác mm-cm → cần SLC + phase
+- **Phân biệt rõ ràng:**
+  - **GEE chỉ làm được Cấp 1-2** (GRD, không có phase)
+  - **SBAS-InSAR làm Cấp 3** (SLC từ ASF, có phase → interferogram)
 - Tại sao không GPS? GPS đắt, ít điểm; InSAR cho bản đồ toàn khu.
 - So với phương pháp khác: PSI tốt hơn cho đô thị, nhưng SBAS phù hợp vùng tự nhiên như Tĩnh Túc.
 
 **Nguồn gốc:** Dựa trên nghiên cứu quốc tế (Twele 2016, Bovenga 2021), kết hợp thực tế địa phương (địa hình núi, mùa mưa).
+
+---
+
+## PHẦN 0.6 — ⚠️ GIẢI THÍCH QUAN TRỌNG: GEE vs True InSAR cho Sụt lún
+
+### Vấn đề cốt lõi
+
+> **GEE chỉ làm được subsidence gián tiếp (proxy) hoặc mức trung bình**
+> 
+> **KHÔNG phải:** InSAR deformation chuẩn mm-level
+
+### 1. Có 3 mức "sụt lún" khác nhau
+
+| Mức | Dùng gì | Độ chính xác | GEE? |
+|-----|---------|--------------|------|
+| **Cấp 1 - Visual change** | backscatter | qualitative | ✅ |
+| **Cấp 2 - Relative deformation** | offset tracking | ~0.5m | ⚠️ hạn chế |
+| **Cấp 3 - True subsidence** | SBAS/PSI InSAR | mm-cm | ❌ |
+
+### 2. Tại sao GEE không đo được sụt lún chính xác?
+
+```
+GEE có: COPERNICUS/S1_GRD_FLOAT
+        ↓
+        Chỉ cường độ (amplitude)
+        Không có phase
+        → Không tính được interferogram
+        → Không đo được dịch chuyển mm
+
+SBAS cần: S1 SLC (Single Look Complex)
+          ↓
+          Cường độ + Phase
+          → Tính interferogram
+          → Đo path length difference
+          → Độ chính xác mm
+```
+
+### 3. GEE làm được gì cho "sụt lún"?
+
+✅ **Có thể:**
+- Phát hiện vùng biến động mạnh (hotspot detection)
+- Theo dõi thay đổi radar theo thời gian
+- Phát hiện instability proxy
+- Giám sát khu vực mỏ, đất yếu
+- Change point detection
+
+❌ **Không thể:**
+- Dịch chuyển phase chính xác mm-level
+- Tính interferogram
+- Atmospheric correction đầy đủ
+- SBAS, PSI, DInSAR chuẩn
+
+### 4. Physics của true subsidence
+
+Radar Sentinel-1: **λ ~ 5.6 cm (C-band)**
+
+Phase rất nhạy:
+- Chỉ cần dịch chuyển **vài mm** → phase đã đổi
+- Cho phép đo **mm-level deformation**
+
+Nhưng GEE **không có phase** → không thể tính!
+
+### 5. Độ chính xác các phương pháp
+
+| Phương pháp | Độ chính xác | Nguồn dữ liệu |
+|-------------|--------------|---------------|
+| GEE backscatter change | qualitative | GRD |
+| Offset tracking (GEE) | ~0.5m | GRD |
+| DInSAR | cm | SLC |
+| **SBAS/PSI** ⭐ | **mm** | **SLC** |
+
+### 6. Workflow đúng cho Tĩnh Túc
+
+**GEE (GRD) → Hotspot Screening:**
+```
+Sentinel-1 GRD → Backscatter trend → Vùng nghi ngờ
+```
+
+**ASF HyP3 + MintPy (SLC) → True Measurement:**
+```
+Sentinel-1 SLC → SNAP/ISCE → Interferogram → SBAS → mm-level velocity
+```
+
+### 7. Câu đúng cho báo cáo
+
+> "Google Earth Engine với Sentinel-1 GRD phù hợp cho **phát hiện vùng biến động** và **giám sát bất ổn bề mặt** quy mô lớn, nhưng **không hỗ trợ đo sụt lún chính xác** bằng các kỹ thuật interferometric do **thiếu dữ liệu phase SLC**."
+
+> "Các biến động backscatter trong GEE chỉ phản ánh **thay đổi đặc tính tán xạ radar** của bề mặt, không trực tiếp biểu diễn **dịch chuyển hình học tuyệt đối** như trong SBAS/PSI InSAR."
 
 ---
 
@@ -1612,7 +1710,7 @@ Dữ liệu feature (vector) trong dự án Tĩnh Túc được quản lý theo 
 |---------|-----------|----------|---------|---------|----------|
 | **SNAP (ESA)** | SLC → Interferogram | Windows/Mac/Linux | Miễn phí | Giao diện, TOPSAR tự động | Chậm batch processing |
 | **MintPy (JPL/NASA)** | Time-series SBAS/PSI | Python (Linux) | Miễn phí | Network inversion nhanh, PyAPS | Curve learning cao |
-| **StaMPS (Manchester)** | PSI thuyên chuyên sâu | MATLAB | MATLAB license ~2000 USD/yr | Precision tốt nhất | Yêu cầu MATLAB |
+| ~~StaMPS (Manchester)~~ | ~~PSI thuyên chuyên sâu~~ | ~~MATLAB~~ | ~~$2000/yr~~ | ~~Precision tốt~~ | ❌ **Không dùng** - Tốn kém |
 | **ISCE2 (JPL)** | Radar xử lý tổng hợp | Python (Linux) | Miễn phí | Modular, scripting | Tài liệu ít |
 | **LiCSAR (Oxford)** | Auto batch processing | Cloud | Miễn phí (quota) | Tự động, nhanh | Dữ liệu công khai giới hạn |
 | **ASF HyP3** | Inferogram cloud | AWS | Miễu phí (50 job/tháng) | Nhanh, không cần máy mạnh | SLC download riêng |

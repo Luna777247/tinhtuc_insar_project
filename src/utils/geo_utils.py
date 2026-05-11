@@ -215,3 +215,96 @@ def cramer_rao_bound(coherence: np.ndarray,
     # Chuyển pha (radian) sang dichês chuyển (mm): d = phi * lambda / (4*pi)
     sigma_mm = sigma_phi * wavelength_m * 1000 / (4 * np.pi)
     return sigma_mm
+
+
+# ─────────────────────────────────────────────────────────────
+# 4. ĐỌC AOI TỪ GEOJSON
+# ─────────────────────────────────────────────────────────────
+
+def load_aoi_from_geojson(geojson_path: str) -> Dict:
+    """
+    Đọc AOI từ file GeoJSON, trích xuất bbox và polygon.
+
+    Parameters
+    ----------
+    geojson_path : str — đường dẫn đến file GeoJSON
+
+    Returns
+    -------
+    Dict với keys:
+        - 'bbox': [lon_min, lat_min, lon_max, lat_max]
+        - 'polygon': list of [lon, lat] coordinates (closed)
+        - 'center_lon', 'center_lat': tâm vùng
+        - 'epsg': mã EPSG (nếu có trong file)
+
+    Raises
+    ------
+    FileNotFoundError: nếu file không tồn tại
+    ValueError: nếu GeoJSON không hợp lệ
+    """
+    import json
+    from pathlib import Path
+
+    path = Path(geojson_path)
+    if not path.exists():
+        raise FileNotFoundError(f"GeoJSON file not found: {geojson_path}")
+
+    with open(path, 'r', encoding='utf-8') as f:
+        geojson = json.load(f)
+
+    # Lấy geometry từ FeatureCollection hoặc Feature đơn
+    geometry = None
+    if geojson.get('type') == 'FeatureCollection':
+        features = geojson.get('features', [])
+        if not features:
+            raise ValueError("GeoJSON FeatureCollection has no features")
+        geometry = features[0].get('geometry')
+    elif geojson.get('type') == 'Feature':
+        geometry = geojson.get('geometry')
+    elif geojson.get('type') in ['Polygon', 'MultiPolygon']:
+        geometry = geojson
+
+    if not geometry:
+        raise ValueError("No valid geometry found in GeoJSON")
+
+    # Trích xuất coordinates
+    geom_type = geometry.get('type')
+    if geom_type == 'Polygon':
+        coords = geometry['coordinates'][0]  # Outer ring
+    elif geom_type == 'MultiPolygon':
+        coords = geometry['coordinates'][0][0]  # First polygon, outer ring
+    else:
+        raise ValueError(f"Unsupported geometry type: {geom_type}")
+
+    # Tính bbox
+    lons = [c[0] for c in coords]
+    lats = [c[1] for c in coords]
+
+    bbox = [min(lons), min(lats), max(lons), max(lats)]
+    center_lon = (bbox[0] + bbox[2]) / 2
+    center_lat = (bbox[1] + bbox[3]) / 2
+
+    # Đảm bảo polygon đóng kín (điểm đầu = điểm cuối)
+    if coords[0] != coords[-1]:
+        coords.append(coords[0])
+
+    # Xác định EPSG từ CRS nếu có
+    epsg = 4326  # Mặc định WGS84
+    crs = geojson.get('crs', {})
+    if isinstance(crs, dict):
+        properties = crs.get('properties', {})
+        name = properties.get('name', '')
+        if 'EPSG' in name:
+            try:
+                epsg = int(name.split(':')[-1])
+            except (ValueError, IndexError):
+                pass
+
+    return {
+        'bbox': bbox,
+        'polygon': coords,
+        'center_lon': center_lon,
+        'center_lat': center_lat,
+        'epsg': epsg,
+        'geometry_type': geom_type,
+    }
