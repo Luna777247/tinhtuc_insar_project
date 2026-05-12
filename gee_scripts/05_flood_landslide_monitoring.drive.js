@@ -357,7 +357,7 @@ print("Diện tích sạt lở (m²):", landslideArea);
 /**
  * Xuất bản đồ ngập ra Google Drive
  */
-Export.image.toCloudStorage({
+Export.image.toDrive({
   image: floodFinal.unmask(0).byte(),
   description: "FloodMap_TinhTuc_2025_v3",
   folder: "InSAR_TinhTuc",
@@ -370,7 +370,7 @@ Export.image.toCloudStorage({
 /**
  * Xuất bản đồ sạt lở
  */
-Export.image.toCloudStorage({
+Export.image.toDrive({
   image: landslideConfirmed.unmask(0).byte(),
   description: "LandslideMap_TinhTuc_2025_v3",
   folder: "InSAR_TinhTuc",
@@ -383,7 +383,7 @@ Export.image.toCloudStorage({
 /**
  * Xuất bản đồ rủi ro
  */
-Export.image.toCloudStorage({
+Export.image.toDrive({
   image: riskScore.uint8(),
   description: "RiskMap_TinhTuc_2025_v3",
   folder: "InSAR_TinhTuc",
@@ -403,7 +403,7 @@ var floodVectors = floodFinal.reduceToVectors({
   maxPixels: 1e9
 });
 
-Export.table.toCloudStorage({
+Export.table.toDrive({
   collection: floodVectors,
   description: "FloodVectors_TinhTuc_2025",
   folder: "InSAR_TinhTuc",

@@ -1,0 +1,75 @@
+{
+  "workflows": [
+    {
+      "workflow": "flood_event",
+      "baseline_period": [
+        "2025-09-15",
+        "2025-09-20"
+      ],
+      "event_period": [
+        "2025-09-28",
+        "2025-10-02"
+      ],
+      "orbit": 55,
+      "pass": "ASCENDING",
+      "threshold_formula": "\u03bc - 1.5\u03c3",
+      "exports": [
+        "Flood_Orbit55_20260512_032319",
+        "Flood_Diff_VV_20260512_032319"
+      ],
+      "timestamp": "20260512_032319"
+    },
+    {
+      "workflow": "subsidence_proxy",
+      "period": [
+        "2020-01-01",
+        "2025-12-31"
+      ],
+      "orbit": 55,
+      "exports": [
+        "Stability_Orbit55_20260512_032323"
+      ],
+      "timestamp": "20260512_032323"
+    },
+    {
+      "workflow": "orbit55_analysis",
+      "total_images": 295,
+      "orbit": 55,
+      "period": [
+        "2015-02-20",
+        "2026-04-26"
+      ],
+      "exports": [
+        "Orbit55_Metadata_20260512_032324"
+      ],
+      "timestamp": "20260512_032324"
+    }
+  ],
+  "tasks": [
+    {
+      "name": "Flood_Mask",
+      "id": "O2KQXMDWBPFUCYUMHJG3VSIL",
+      "status": "RUNNING",
+      "type": "image"
+    },
+    {
+      "name": "Flood_Diff",
+      "id": "2HLHPERQC7SQUCLE3LNGYBVX",
+      "status": "RUNNING",
+      "type": "image"
+    },
+    {
+      "name": "Stability_Index",
+      "id": "WQV5NAGE6XKWRW5ZQPKISCE5",
+      "status": "RUNNING",
+      "type": "image"
+    },
+    {
+      "name": "Orbit55_Metadata",
+      "id": "R4RPT53ODH5JWCH3HJPFFQQO",
+      "status": "READY",
+      "type": "table"
+    }
+  ],
+  "google_drive_folder": "TinhTuc_GEE_Results"
+}

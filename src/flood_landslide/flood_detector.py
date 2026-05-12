@@ -35,16 +35,19 @@ class FloodDetector:
     def __init__(
         self,
         aoi_bbox: List[float],
-        orbit_numbers: List[int] = [55, 91, 128],
+        orbit_numbers: List[int] = None,  # Default: [55] - Primary orbit
         threshold_sigma: float = 1.5,
         slope_threshold: float = 5.0
     ):
         self.aoi = aoi_bbox
-        self.orbits = orbit_numbers
+        # Default to Orbit 55 (Primary orbit with best coverage)
+        self.orbits = orbit_numbers if orbit_numbers is not None else [55]
         self.sigma = threshold_sigma
         self.slope_thresh = slope_threshold
         
-        logger.info(f"FloodDetector initialized: AOI={aoi_bbox}, orbits={orbit_numbers}")
+        logger.info(f"FloodDetector initialized: AOI={aoi_bbox}, orbits={self.orbits}")
+        if 55 in self.orbits:
+            logger.info("  Using Orbit 55 (ASCENDING) - Primary orbit with 544 images (48% coverage)")
     
     def calculate_adaptive_threshold(
         self,

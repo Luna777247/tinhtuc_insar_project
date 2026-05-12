@@ -1,6 +1,6 @@
 """
-run_pipeline.py
-================
+run_pipeline_psbas.py
+=====================
 Pipeline đầy đủ end-to-end cho dự án InSAR Tĩnh Túc.
 Chạy tất cả 5 giai đoạn theo thứ tự:
 
@@ -10,12 +10,15 @@ Chạy tất cả 5 giai đoạn theo thứ tự:
   Giai đoạn 4: Phân tích kinematics
   Giai đoạn 5: Tạo báo cáo & hình ảnh
 
-Chạy:  python run_pipeline.py
+Chạy:  python run_pipeline_psbas.py
+
+ROI: Sử dụng config/TinhTuc4326_200m.geojson
 """
 
 import sys
 import logging
 import time
+import json
 import numpy as np
 from pathlib import Path
 from datetime import datetime, timedelta
@@ -23,6 +26,44 @@ from datetime import datetime, timedelta
 # ─── Setup paths ───
 ROOT = Path(__file__).parent
 sys.path.insert(0, str(ROOT))
+
+# ─── Load ROI từ GeoJSON ───
+GEOJSON_PATH = ROOT / "config" / "TinhTuc4326_200m.geojson"
+
+def load_roi_from_geojson(geojson_path: Path = GEOJSON_PATH) -> dict:
+    """Load ROI bounds từ GeoJSON file."""
+    if not geojson_path.exists():
+        logger.warning(f"GeoJSON không tìm thấy: {geojson_path}")
+        logger.info("Sử dụng AOI mặc định từ config.settings")
+        return None
+    
+    with open(geojson_path, 'r', encoding='utf-8') as f:
+        geojson = json.load(f)
+    
+    # Extract coordinates và tính bounds
+    if geojson['type'] == 'Polygon':
+        coords = geojson['coordinates'][0]  # First ring
+    elif geojson['type'] == 'FeatureCollection':
+        coords = geojson['features'][0]['geometry']['coordinates'][0]
+    elif geojson['type'] == 'Feature':
+        coords = geojson['geometry']['coordinates'][0]
+    else:
+        coords = geojson.get('coordinates', [[]])[0]
+    
+    # Tính bounds từ coordinates
+    lons = [c[0] for c in coords]
+    lats = [c[1] for c in coords]
+    
+    bounds = {
+        'lon_min': min(lons),
+        'lon_max': max(lons),
+        'lat_min': min(lats),
+        'lat_max': max(lats)
+    }
+    
+    logger.info(f"✅ Đã load ROI từ GeoJSON: {geojson_path}")
+    logger.info(f"   Bounds: [{bounds['lon_min']}, {bounds['lat_min']}, {bounds['lon_max']}, {bounds['lat_max']}]")
+    return bounds
 
 # ─── Logging ───
 logging.basicConfig(
@@ -91,7 +132,22 @@ def run_phase_1_data_preparation():
         lon_grid = np.load(processed_dir / "lon_grid.npy")
     else:
         logger.info("  Tạo dữ liệu tổng hợp (synthetic mode)...")
-        from config.settings import AOI
+        
+        # Thử load ROI từ GeoJSON trước
+        geojson_bounds = load_roi_from_geojson()
+        
+        if geojson_bounds:
+            # Sử dụng bounds từ GeoJSON
+            lon_min, lon_max = geojson_bounds['lon_min'], geojson_bounds['lon_max']
+            lat_min, lat_max = geojson_bounds['lat_min'], geojson_bounds['lat_max']
+            logger.info(f"  Sử dụng ROI từ GeoJSON: [{lon_min}, {lat_min}, {lon_max}, {lat_max}]")
+        else:
+            # Fallback về AOI từ config.settings
+            from config.settings import AOI
+            lon_min, lon_max = AOI["lon_min"], AOI["lon_max"]
+            lat_min, lat_max = AOI["lat_min"], AOI["lat_max"]
+            logger.info(f"  Sử dụng ROI từ config: [{lon_min}, {lat_min}, {lon_max}, {lat_max}]")
+        
         rng_syn = np.random.default_rng(42)
         H, W = 50, 50
         x_g, y_g = np.meshgrid(np.linspace(0, 1, W), np.linspace(0, 1, H))
@@ -107,9 +163,6 @@ def run_phase_1_data_preparation():
         displacement = np.array([velocity_true * (d / 365.25) + rng_syn.normal(0, 0.5, (H, W))
                                   for d in time_days], dtype=np.float32)
         source_type_map = rng_syn.integers(0, 7, (H, W), dtype=np.int16)
-        # Sử dụng AOI từ GeoJSON thay vì hard-coded
-        lon_min, lon_max = AOI["lon_min"], AOI["lon_max"]
-        lat_min, lat_max = AOI["lat_min"], AOI["lat_max"]
         lon_grid = np.linspace(lon_min, lon_max, W, dtype=np.float32)[np.newaxis, :] * np.ones((H, 1), dtype=np.float32)
         lat_grid = np.linspace(lat_max, lat_min, H, dtype=np.float32)[:, np.newaxis] * np.ones((1, W), dtype=np.float32)
         processed_dir.mkdir(parents=True, exist_ok=True)
@@ -122,7 +175,8 @@ def run_phase_1_data_preparation():
         np.save(processed_dir / "source_type_map.npy", source_type_map)
         np.save(processed_dir / "lat_grid.npy", lat_grid)
         np.save(processed_dir / "lon_grid.npy", lon_grid)
-        logger.info(f"  Synthetic data generated with AOI: [{lon_min}, {lat_min}, {lon_max}, {lat_max}]")
+        logger.info(f"  ✅ Synthetic data generated với ROI: [{lon_min}, {lat_min}, {lon_max}, {lat_max}]")
+        logger.info(f"  Source: {'GeoJSON' if geojson_bounds else 'config.settings'}")
         logger.info("  Synthetic data saved.")
 
     logger.info(f"  Loaded DEM shape: {dem.shape}, range: [{dem.min():.1f}, {dem.max():.1f}]m")
@@ -714,13 +768,44 @@ def run_flood_landslide_event_20250928_1001():
     logger.info("   2. Chạy trong GEE Code Editor")
     logger.info("   3. Tải kết quả về outputs/events/20250928_1001/")
     
-    # 3. Tốc độ sụt lún (SBAS toàn thời kỳ)
+    # 3. Phân tích metadata chi tiết
+    logger.info("\n📊 Phân tích dữ liệu Sentinel-1 (2014-2026):")
+    logger.info("   📁 Nguồn: S1_Metadata_TinhTuc_2014_to_Now.csv")
+    
+    # Thống kê platform từ CSV
+    try:
+        import pandas as pd
+        csv_path = ROOT / "docs" / "S1_Metadata_TinhTuc_2014_to_Now.csv"
+        if csv_path.exists():
+            df = pd.read_csv(csv_path)
+            total = len(df)
+            s1a = len(df[df['platform'] == 'A'])
+            s1b = len(df[df['platform'] == 'B'])
+            s1c = len(df[df['platform'] == 'C'])
+            s1d = len(df[df['platform'] == 'D']) if 'D' in df['platform'].values else 0
+            
+            orb55 = len(df[df['relative_orbit'] == 55.0])
+            orb91 = len(df[df['relative_orbit'] == 91.0])
+            orb128 = len(df[df['relative_orbit'] == 128.0])
+            
+            asc = len(df[df['orbit_pass'] == 'ASCENDING'])
+            desc = len(df[df['orbit_pass'] == 'DESCENDING'])
+            
+            logger.info(f"   🛰️  Tổng ảnh: {total}")
+            logger.info(f"      S1A: {s1a} ({s1a/total*100:.1f}%) | S1B: {s1b} ({s1b/total*100:.1f}%) | S1C: {s1c} ({s1c/total*100:.1f}%) | S1D: {s1d}")
+            logger.info(f"   🔄 Quỹ đạo:")
+            logger.info(f"      Orbit 55 (ASC): {orb55} ({orb55/total*100:.1f}%)")
+            logger.info(f"      Orbit 91 (DESC): {orb91} ({orb91/total*100:.1f}%)")
+            logger.info(f"      Orbit 128 (ASC): {orb128} ({orb128/total*100:.1f}%)")
+            logger.info(f"   📡 Hướng: ASC {asc} ({asc/total*100:.1f}%) | DESC {desc} ({desc/total*100:.1f}%)")
+            logger.info(f"   📅 Revisit thực tế: ~{12 if s1b < 10 else 6} ngày (chủ yếu S1A)")
+    except Exception as e:
+        logger.warning(f"   ⚠️ Không thể đọc chi tiết CSV: {e}")
+    
     logger.info("\n📊 Tốc độ sụt lún (SBAS 2014-2026):")
-    logger.info("   - Dữ liệu: S1_Metadata_TinhTuc_2014_to_Now.csv")
-    logger.info("   - Orbit 55: 543 ảnh (2015-2026)")
-    logger.info("   - Orbit 91: 319 ảnh (2015-2026)")
-    logger.info("   - Orbit 128: 268 ảnh (2017-2026)")
-    logger.info("   → Sử dụng: ASF HyP3 + MintPy (xem docs/)")
+    logger.info("   → Phương pháp: ASF HyP3 + MintPy (Cấp 3)")
+    logger.info("   → Độ chính xác: 3-10 mm/năm")
+    logger.info("   → Xem docs/Sentinel1_TinhTuc_PhanTich_KichBan_ChiTiet.md")
     
     # 4. Tạo cấu hình xử lý
     config = {

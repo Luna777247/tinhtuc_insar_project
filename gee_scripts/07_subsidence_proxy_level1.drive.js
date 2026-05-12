@@ -264,7 +264,7 @@ print("Trend VH stdDev:", trendStats.get('scale_stdDev'), "dB/year");
 // ============================================================
 
 // Export stability index
-Export.image.toCloudStorage({
+Export.image.toDrive({
   image: stabilityIndex,
   description: "TinhTuc_StabilityIndex_Level1_2020_2025",
   folder: "InSAR_TinhTuc",
@@ -275,7 +275,7 @@ Export.image.toCloudStorage({
 });
 
 // Export trend VH
-Export.image.toCloudStorage({
+Export.image.toDrive({
   image: trendVH,
   description: "TinhTuc_VHTrend_Level1_2020_2025",
   folder: "InSAR_TinhTuc",
@@ -286,7 +286,7 @@ Export.image.toCloudStorage({
 });
 
 // Export hotspot mask
-Export.image.toCloudStorage({
+Export.image.toDrive({
   image: hotspotClean.unmask(0).byte(),
   description: "TinhTuc_Hotspots_Level1_2020_2025",
   folder: "InSAR_TinhTuc",
@@ -304,7 +304,7 @@ var hotspotVectors = hotspotClean.reduceToVectors({
   maxPixels: 1e9
 });
 
-Export.table.toCloudStorage({
+Export.table.toDrive({
   collection: hotspotVectors,
   description: "TinhTuc_HotspotsVector_Level1",
   folder: "InSAR_TinhTuc",

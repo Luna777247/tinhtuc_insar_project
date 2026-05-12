@@ -22,6 +22,7 @@
 6. [Truy Vấn Dữ Liệu GEE](#6-truy-vấn-dữ-liệu-gee)
 7. [Xuất Metadata và Phân Tích](#7-xuất-metadata-và-phân-tích)
    - 7.3 Thống Kê Thực Tế Tĩnh Túc (2015-2026)
+   - 7.3.5 **Orbit 55 ASC làm Primary**
 8. [Giới Hạn GEE cho Subsidence](#8-giới-hạn-gee-cho-subsidence)
 9. [Phát Hiện Ngập Lụt và Sạt Lở](#9-phát-hiện-ngập-lụt-và-sạt-lở)
    - 9.7 Change Detection nâng cao
@@ -607,6 +608,41 @@ Dữ liệu từ file `S1_Metadata_TinhTuc_2014_to_Now.csv` (xuất từ GEE):
 5. **ASCENDING nhiều hơn:** Gấp 2.5 lần DESCENDING
 6. **Revisit thực tế:** ~12 ngày cho cùng orbit (chỉ S1A)
 
+#### 7.3.5. Lựa Chọn Orbit 55 ASCENDING Làm Dữ Liệu Phân Tích Chính
+
+Dựa trên phân tích dữ liệu thực tế, **Orbit 55 (ASCENDING)** được chọn làm quỹ đạo phân tích chính cho dự án Tĩnh Túc:
+
+| Lý do | Giải thích | Lợi ích |
+|-------|------------|---------|
+| **Số lượng ảnh nhiều nhất** | 544 ảnh (48% tổng số) | Time-series dài, phân tích trend chính xác |
+| **Hướng ASCENDING** | Cùng hướng bay, góc nhìn ổn định | Giảm nhiễu do geometry khác nhau |
+| **Revisit ~12 ngày** | Chu kỳ ổn định với S1A | Đủ để phát hiện thay đổi, không quá thưa |
+| **Phù hợp địa hình** | Góc nhìn từ hướng Bắc-Nam | Tốt cho miền núi Tĩnh Túc |
+| **Dễ so sánh** | Cùng orbit giữa các lần chụp | Change detection đáng tin cậy |
+
+**Cấu hình khuyến nghị cho GEE:**
+
+```javascript
+// Primary orbit: 55 (ASCENDING)
+var PRIMARY_ORBIT = 55;
+var PRIMARY_PASS = 'ASCENDING';
+
+var s1Collection = ee.ImageCollection('COPERNICUS/S1_GRD')
+  .filterBounds(ROI)
+  .filterDate(START_DATE, END_DATE)
+  .filter(ee.Filter.eq('instrumentMode', 'IW'))
+  .filter(ee.Filter.eq('relativeOrbitNumber_start', PRIMARY_ORBIT))  // Chỉ Orbit 55
+  .filter(ee.Filter.eq('orbitProperties_pass', PRIMARY_PASS))         // Chỉ ASCENDING
+  .filter(ee.Filter.listContains('transmitterReceiverPolarisation', 'VV'))
+  .filter(ee.Filter.listContains('transmitterReceiverPolarisation', 'VH'));
+```
+
+**Khi nào dùng Orbit 91 hoặc 128?**
+- **Orbit 91 (DESC):** Khi cần cross-validation hoặc phân tích sự kiện ngắn (có 320 ảnh)
+- **Orbit 128 (ASC):** Khi cần bổ sung dữ liệu, nhưng ít ảnh hơn (269 ảnh)
+
+> **Quy tắc vàng:** Luôn dùng cùng một orbit cho change detection để tránh nhiễu do geometry khác nhau!
+
 ### 7.4. Thống Kê Diện Tích
 
 ```javascript
@@ -690,8 +726,6 @@ Sentinel-1 GRD → Backscatter trend → Hotspot screening
 Sentinel-1 SLC → SNAP/ISCE → Interferogram → SBAS → mm-level velocity
 ```
 
-### 8.6. Câu Chuẩn Cho Báo Cáo
-
 > "Google Earth Engine với Sentinel-1 GRD phù hợp cho **phát hiện vùng biến động** và **giám sát bất ổn bề mặt** quy mô lớn, nhưng **không hỗ trợ đo sụt lún chính xác** bằng các kỹ thuật interferometric do **thiếu dữ liệu phase SLC**."
 
 > "Các biến động backscatter trong GEE chỉ phản ánh **thay đổi đặc tính tán xạ radar** của bề mặt, không trực tiếp biểu diễn **dịch chuyển hình học tuyệt đối** như trong SBAS/PSI InSAR."
@@ -742,7 +776,7 @@ Sạt lở làm thay đổi:
 | **Vegetation removal** | Cây bị mất → VH giảm |
 | **Geometry change** | Slope đổi → radar response đổi |
 
-> ⚠️ **Sạt lở khó detect hơn flood** vì signature không ổn định!
+> **Sạt lở khó detect hơn flood** vì signature không ổn định!
 
 ### 9.4. Ngưỡng Phát Hiện Sạt Lở
 
@@ -853,8 +887,9 @@ PHASE 1: DATA COLLECTION (GEE)
 ├── ROI: [105.85, 22.62, 106.05, 22.80]
 ├── Time: 2015-02-20 → 2026-04-26 (1,133 ảnh)
 ├── Platforms: S1A (99.4%), S1B (0.35%), S1C (0.26%)
-├── Orbits: 55 (48%), 91 (28.2%), 128 (23.7%)
-├── Filter: IW mode, VV+VH, ASC/DESC
+├── **Primary Orbit: 55 (ASCENDING)** - 544 ảnh (48%)
+├── Secondary: Orbit 91 (DESC) - 320 ảnh, Orbit 128 (ASC) - 269 ảnh
+├── Filter: IW mode, VV+VH, **Orbit 55 ASC**
 └── Export: Metadata CSV → `S1_Metadata_TinhTuc_2014_to_Now.csv`
 
 PHASE 2: CHANGE DETECTION (GEE)
@@ -1023,9 +1058,3 @@ Map.addLayer(diffVV, {min: -5, max: 5, palette: ['red', 'white', 'blue']}, 'Diff
 | Cùng orbit quan trọng không? | ✅ Rất quan trọng cho change detection |
 | GEE phù hợp gì? | ✅ Screening, hotspot, time-series |
 | GEE không phù hợp gì? | ❌ mm-level subsidence, true InSAR |
-
----
-
-*Document version: 1.0*  
-*Last updated: 2026-05-11*  
-*Author: InSAR Research Team*

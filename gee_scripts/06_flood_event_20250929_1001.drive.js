@@ -325,7 +325,7 @@ print("Diện tích sạt lở (ha):", ee.Number(landslideArea.get("constant")).
 
 print("\n7. Xuất kết quả...");
 
-Export.image.toCloudStorage({
+Export.image.toDrive({
   image: flood55.unmask(0).byte(),
   description: "Flood_20250929_TinhTuc",
   folder: "InSAR_Events_2025",
@@ -335,7 +335,7 @@ Export.image.toCloudStorage({
   maxPixels: 1e13
 });
 
-Export.image.toCloudStorage({
+Export.image.toDrive({
   image: landslide91.unmask(0).byte(),
   description: "Landslide_20251001_TinhTuc",
   folder: "InSAR_Events_2025",
@@ -345,7 +345,7 @@ Export.image.toCloudStorage({
   maxPixels: 1e13
 });
 
-Export.image.toCloudStorage({
+Export.image.toDrive({
   image: riskScore.uint8(),
   description: "RiskMap_20250929_1001_TinhTuc",
   folder: "InSAR_Events_2025",
@@ -363,7 +363,7 @@ var floodVectors = flood55.reduceToVectors({
   maxPixels: 1e9
 });
 
-Export.table.toCloudStorage({
+Export.table.toDrive({
   collection: floodVectors,
   description: "FloodVectors_20250929",
   folder: "InSAR_Events_2025",

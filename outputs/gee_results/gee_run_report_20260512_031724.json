@@ -1,0 +1,52 @@
+{
+  "timestamp": "20260512_031724",
+  "workflows_run": 3,
+  "tasks": [
+    {
+      "workflow": "flood_event",
+      "baseline_period": [
+        "2025-09-15",
+        "2025-09-20"
+      ],
+      "event_period": [
+        "2025-09-28",
+        "2025-10-02"
+      ],
+      "orbit": 55,
+      "pass": "ASCENDING",
+      "threshold_formula": "\u03bc - 1.5\u03c3",
+      "exports": [
+        "Flood_Orbit55_20260512_031710",
+        "Flood_Diff_VV_20260512_031710"
+      ],
+      "timestamp": "20260512_031710"
+    },
+    {
+      "workflow": "subsidence_proxy",
+      "period": [
+        "2020-01-01",
+        "2025-12-31"
+      ],
+      "orbit": 55,
+      "exports": [
+        "Stability_Orbit55_20260512_031713"
+      ],
+      "timestamp": "20260512_031713"
+    },
+    {
+      "workflow": "orbit55_analysis",
+      "total_images": 295,
+      "orbit": 55,
+      "period": [
+        "2015-02-20",
+        "2026-04-26"
+      ],
+      "exports": [
+        "Orbit55_Metadata_20260512_031715"
+      ],
+      "timestamp": "20260512_031715"
+    }
+  ],
+  "output_directory": "D:\\tinhtuc_insar_project\\outputs\\gee_results",
+  "google_drive_folder": "TinhTuc_GEE_Results"
+}
