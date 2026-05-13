@@ -1,0 +1,28 @@
+{
+  "workflows": [
+    {
+      "workflow": "landslide_detection",
+      "sar_period": [
+        "2025-06-01",
+        "2025-09-01"
+      ],
+      "ndvi_period": [
+        "2025-06-01",
+        "2025-09-01"
+      ],
+      "exports": [
+        "Landslide_Confirmed_20260513_172733"
+      ],
+      "timestamp": "20260513_172733"
+    }
+  ],
+  "tasks": [
+    {
+      "name": "Landslide_Mask",
+      "id": "JH2SABCDRCO2Q3PRUQ3GXNNR",
+      "status": "FAILED",
+      "type": "image"
+    }
+  ],
+  "google_drive_folder": "TinhTuc_GEE_Results"
+}

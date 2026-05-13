@@ -1,6 +1,6 @@
 /**
- * GEE Script: Flood Mapping & Landslide Detection
- * ================================================
+ * GEE Script: Flood Mapping & Landslide Detection (UNIFIED)
+ * ================================================================
  * Kịch bản 1: Phát hiện ngập lụt (Flood Mapping)
  * Kịch bản 2: Phát hiện sạt lở (Landslide Detection)
  * 
@@ -8,6 +8,7 @@
  * Dữ liệu: Sentinel-1 GRD (VV, VH)
  * Thời gian: Mùa mưa 2025-2026
  * 
+ * Export: Cả Drive và Cloud Storage
  * Tham chiếu: Twele et al. 2016; Bovenga et al. 2021
  */
 
@@ -351,67 +352,142 @@ var landslideArea = landslideConfirmed.multiply(pixelArea)
 print("Diện tích sạt lở (m²):", landslideArea);
 
 // ============================================================
-// 9. EXPORT KẾT QUẢ
+// 9. EXPORT KẾT QUẢ - CẢ HAI LỰA CHỌN
 // ============================================================
 
-/**
- * Xuất bản đồ ngập ra Google Drive
- */
-Export.image.toCloudStorage({
-  image: floodFinal.unmask(0).byte(),
-  description: "FloodMap_TinhTuc_2025_v3",
+// Export configuration
+var exportConfig = {
   folder: "InSAR_TinhTuc",
   region: roi,
   scale: 10,
   crs: "EPSG:4326",
   maxPixels: 1e13
-});
+};
 
 /**
- * Xuất bản đồ sạt lở
+ * Xuất ra Google Drive
  */
-Export.image.toCloudStorage({
-  image: landslideConfirmed.unmask(0).byte(),
-  description: "LandslideMap_TinhTuc_2025_v3",
-  folder: "InSAR_TinhTuc",
-  region: roi,
-  scale: 10,
-  crs: "EPSG:4326",
-  maxPixels: 1e13
-});
+var exportToDrive = function() {
+  print("=== EXPORT TO GOOGLE DRIVE ===");
+  
+  // Flood map
+  Export.image.toDrive({
+    image: floodFinal.unmask(0).byte(),
+    description: "FloodMap_TinhTuc_2025_Drive",
+    folder: exportConfig.folder,
+    region: exportConfig.region,
+    scale: exportConfig.scale,
+    crs: exportConfig.crs,
+    maxPixels: exportConfig.maxPixels
+  });
+
+  // Landslide map
+  Export.image.toDrive({
+    image: landslideConfirmed.unmask(0).byte(),
+    description: "LandslideMap_TinhTuc_2025_Drive",
+    folder: exportConfig.folder,
+    region: exportConfig.region,
+    scale: exportConfig.scale,
+    crs: exportConfig.crs,
+    maxPixels: exportConfig.maxPixels
+  });
+
+  // Risk map
+  Export.image.toDrive({
+    image: riskScore.uint8(),
+    description: "RiskMap_TinhTuc_2025_Drive",
+    folder: exportConfig.folder,
+    region: exportConfig.region,
+    scale: exportConfig.scale,
+    crs: exportConfig.crs,
+    maxPixels: exportConfig.maxPixels
+  });
+
+  // Flood vectors
+  var floodVectors = floodFinal.reduceToVectors({
+    geometry: roi,
+    scale: 10,
+    eightConnected: true,
+    maxPixels: 1e9
+  });
+
+  Export.table.toDrive({
+    collection: floodVectors,
+    description: "FloodVectors_TinhTuc_2025_Drive",
+    folder: exportConfig.folder,
+    fileFormat: "GeoJSON"
+  });
+};
 
 /**
- * Xuất bản đồ rủi ro
+ * Xuất ra Google Cloud Storage
  */
-Export.image.toCloudStorage({
-  image: riskScore.uint8(),
-  description: "RiskMap_TinhTuc_2025_v3",
-  folder: "InSAR_TinhTuc",
-  region: roi,
-  scale: 10,
-  crs: "EPSG:4326",
-  maxPixels: 1e13
-});
+var exportToCloudStorage = function() {
+  print("=== EXPORT TO GOOGLE CLOUD STORAGE ===");
+  
+  // Flood map
+  Export.image.toCloudStorage({
+    image: floodFinal.unmask(0).byte(),
+    description: "FloodMap_TinhTuc_2025_GCS",
+    bucket: "your-bucket-name", // Cần thay đổi
+    region: exportConfig.region,
+    scale: exportConfig.scale,
+    crs: exportConfig.crs,
+    maxPixels: exportConfig.maxPixels
+  });
 
-/**
- * Xuất vector vùng ngập (GeoJSON)
- */
-var floodVectors = floodFinal.reduceToVectors({
-  geometry: roi,
-  scale: 10,
-  eightConnected: true,
-  maxPixels: 1e9
-});
+  // Landslide map
+  Export.image.toCloudStorage({
+    image: landslideConfirmed.unmask(0).byte(),
+    description: "LandslideMap_TinhTuc_2025_GCS",
+    bucket: "your-bucket-name", // Cần thay đổi
+    region: exportConfig.region,
+    scale: exportConfig.scale,
+    crs: exportConfig.crs,
+    maxPixels: exportConfig.maxPixels
+  });
 
-Export.table.toCloudStorage({
-  collection: floodVectors,
-  description: "FloodVectors_TinhTuc_2025",
-  folder: "InSAR_TinhTuc",
-  fileFormat: "GeoJSON"
-});
+  // Risk map
+  Export.image.toCloudStorage({
+    image: riskScore.uint8(),
+    description: "RiskMap_TinhTuc_2025_GCS",
+    bucket: "your-bucket-name", // Cần thay đổi
+    region: exportConfig.region,
+    scale: exportConfig.scale,
+    crs: exportConfig.crs,
+    maxPixels: exportConfig.maxPixels
+  });
+
+  // Flood vectors
+  var floodVectors = floodFinal.reduceToVectors({
+    geometry: roi,
+    scale: 10,
+    eightConnected: true,
+    maxPixels: 1e9
+  });
+
+  Export.table.toCloudStorage({
+    collection: floodVectors,
+    description: "FloodVectors_TinhTuc_2025_GCS",
+    bucket: "your-bucket-name", // Cần thay đổi
+    fileFormat: "GeoJSON"
+  });
+};
 
 // ============================================================
-// 10. CHẠY TỰ ĐỘNG (BATCH PROCESSING)
+// 10. CHẠY EXPORT - CHỌN PHƯƠNG ÁN
+// ============================================================
+
+// CHỌN MỘT TRONG HAI:
+// 1. exportToDrive();     // Xuất ra Google Drive
+// 2. exportToCloudStorage(); // Xuất ra Google Cloud Storage
+
+// Mặc định: Uncomment dòng muốn chạy
+exportToDrive();
+// exportToCloudStorage();
+
+// ============================================================
+// 11. CHẠY TỰ ĐỘNG (BATCH PROCESSING)
 // ============================================================
 
 /**
@@ -449,6 +525,7 @@ print("Batch configuration:", batchDates);
 // ============================================================
 // HOÀN THÀNH
 // ============================================================
-print("=== Flood & Landslide Monitoring Script Loaded ===");
+print("=== Flood & Landslide Monitoring Script (UNIFIED) Loaded ===");
 print("AOI:", roi.bounds().getInfo());
-print("Check layers in the Map panel");
+print("Check layers in Map panel");
+print("Choose export method: exportToDrive() or exportToCloudStorage()");

@@ -121,22 +121,38 @@ logger = logging.getLogger(__name__)
 
 
 def initialize_ee(key_path: Path = DEFAULT_KEY_PATH) -> None:
-    """Khởi tạo Google Earth Engine với service account."""
-    if not key_path.exists():
-        raise FileNotFoundError(
-            f"Service account key không tìm thấy: {key_path}\n"
-            f"Vui lòng tạo file gee-private-key.json từ Google Cloud Console"
-        )
-    
-    data = json.loads(key_path.read_text(encoding="utf-8"))
-    service_account_email = data.get("client_email")
-    
-    if not service_account_email:
-        raise ValueError(f"Thiếu 'client_email' trong {key_path}")
-    
-    credentials = ee.ServiceAccountCredentials(service_account_email, str(key_path))
-    ee.Initialize(credentials)
-    logger.info(f"✅ Đã kết nối GEE với account: {service_account_email}")
+    """Khởi tạo Google Earth Engine (Service Account hoặc Personal)."""
+    if key_path.exists():
+        try:
+            data = json.loads(key_path.read_text(encoding="utf-8"))
+            service_account_email = data.get("client_email")
+            if service_account_email:
+                credentials = ee.ServiceAccountCredentials(service_account_email, str(key_path))
+                ee.Initialize(credentials)
+                logger.info(f"✅ Đã kết nối GEE với service account: {service_account_email}")
+                return
+        except Exception as e:
+            logger.warning(f"⚠️ Lỗi khi nạp key {key_path}: {e}")
+
+    # Fallback to local authentication
+    try:
+        # Trong môi trường cá nhân, người dùng đã chạy 'earthengine authenticate'
+        # Chúng ta thử khởi tạo mặc định. 
+        # Lưu ý: Nếu báo lỗi 'no project', người dùng cần chạy 'earthengine set_project <ID>'
+        try:
+            ee.Initialize()
+            logger.info("✅ Đã kết nối GEE với tài khoản mặc định (personal/ADC)")
+        except Exception as e_init:
+            if "no project" in str(e_init).lower():
+                # Thử tìm project ID trong các file cấu hình khác nếu có (ví dụ: config/settings.py)
+                logger.error("❌ Errror: ee.Initialize: no project found.")
+                logger.info("👉 Vui lòng chạy: earthengine set_project <YOUR_PROJECT_ID>")
+                raise
+            else:
+                raise
+    except Exception as e:
+        logger.error(f"❌ Không thể kết nối GEE: {e}")
+        raise
 
 
 class GEEWorkflowRunner:
@@ -382,6 +398,107 @@ class GEEWorkflowRunner:
         
         return result_info
     
+    def run_landslide_detection(
+        self,
+        pre_start: str = "2025-06-01",
+        pre_end: str = "2025-07-01",
+        post_start: str = "2025-08-10",
+        post_end: str = "2025-09-01"
+    ) -> Dict:
+        """
+        Workflow 4: Phát hiện sạt lở (Landslide Detection).
+        Kết hợp SAR Change Detection (Orbit 55) và Sentinel-2 NDVI.
+        """
+        logger.info("=" * 60)
+        logger.info("🏔️ WORKFLOW 4: Landslide Detection")
+        logger.info(f"   Pre-event: {pre_start} → {pre_end}")
+        logger.info(f"   Post-event: {post_start} → {post_end}")
+        logger.info("   Consensus: SAR (Orbit 55) + S2 NDVI")
+        logger.info("=" * 60)
+        
+        # 1. SAR Data (Orbit 55)
+        s1 = ee.ImageCollection('COPERNICUS/S1_GRD') \
+            .filterBounds(ROI) \
+            .filter(ee.Filter.eq('instrumentMode', 'IW')) \
+            .filter(ee.Filter.eq('relativeOrbitNumber_start', 55)) \
+            .filter(ee.Filter.eq('orbitProperties_pass', 'ASCENDING')) \
+            .select(['VH', 'VV'])
+            
+        pre_sar = s1.filterDate(pre_start, pre_end).median()
+        post_sar = s1.filterDate(post_start, post_end).median()
+        
+        # 2. Slope mask (20-55°)
+        dem = ee.Image('NASA/NASADEM_HGT/001').select('elevation')
+        slope = ee.Terrain.slope(dem)
+        slope_mask = slope.gt(20).And(slope.lt(55))
+        
+        # 3. Sentinel-2 NDVI
+        # Nới lỏng ngưỡng mây cho mùa mưa (60%)
+        s2 = ee.ImageCollection('COPERNICUS/S2_SR_HARMONIZED') \
+            .filterBounds(ROI) \
+            .filter(ee.Filter.lt('CLOUDY_PIXEL_PERCENTAGE', 60))
+            
+        def get_ndvi(img):
+            return img.normalizedDifference(['B8', 'B4']).rename('NDVI')
+            
+        pre_ndvi_col = s2.filterDate(pre_start, pre_end)
+        post_ndvi_col = s2.filterDate(post_start, post_end)
+        
+        # Nếu không có ảnh trong khoảng post_start -> post_end, mở rộng ra thêm 30 ngày
+        # (GEE code is server-side, but we can do some logic here or use a fallback)
+        
+        pre_ndvi = pre_ndvi_col.map(get_ndvi).median()
+        # Đảm bảo luôn có ít nhất 1 band 'NDVI' để tránh lỗi Image.lt
+        pre_ndvi = ee.Image(ee.Algorithms.If(pre_ndvi_col.size().gt(0), pre_ndvi, ee.Image(0).rename('NDVI')))
+        
+        post_ndvi = post_ndvi_col.map(get_ndvi).median()
+        post_ndvi = ee.Image(ee.Algorithms.If(post_ndvi_col.size().gt(0), post_ndvi, ee.Image(0).rename('NDVI')))
+        
+        has_post_ndvi = post_ndvi_col.size().gt(0)
+        
+        diff_ndvi = post_ndvi.subtract(pre_ndvi)
+        # Nếu không có NDVI sau sự kiện, chúng ta chỉ tin vào SAR (xem như NDVI mask là 1)
+        ndvi_mask = ee.Image(ee.Algorithms.If(has_post_ndvi, diff_ndvi.lt(-0.2), ee.Image(1))).rename('ndvi_mask')
+
+        # 4. Landslide Candidates: VH Change > 3dB (absolute change) AND Slope 20-55
+        diff_vh = post_sar.select('VH').subtract(pre_sar.select('VH')).rename('VH_diff')
+        landslide_sar = diff_vh.abs().gt(3.0).And(slope_mask)
+        
+        # 5. Confirmed: SAR + NDVI decrease > 0.2
+        landslide_confirmed = landslide_sar.And(ndvi_mask)
+        
+        # 6. Export
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        
+        task_landslide = ee.batch.Export.image.toDrive(
+            image=landslide_confirmed.selfMask().byte(),
+            description=f'Landslide_Confirmed_{timestamp}',
+            folder='TinhTuc_GEE_Results',
+            region=ROI,
+            scale=10,
+            crs='EPSG:32648',
+            maxPixels=1e9
+        )
+        
+        task_landslide.start()
+        
+        self.tasks.append({
+            'name': 'Landslide_Mask',
+            'task': task_landslide,
+            'type': 'image'
+        })
+        
+        result_info = {
+            'workflow': 'landslide_detection',
+            'sar_period': (pre_start, post_end),
+            'ndvi_period': (pre_start, post_end),
+            'exports': [f'Landslide_Confirmed_{timestamp}'],
+            'timestamp': timestamp
+        }
+        
+        logger.info(f"✅ Đã tạo export sạt lở: {result_info['exports']}")
+        return result_info
+    
     def check_task_status(self, wait: bool = True, timeout: int = 300) -> List[Dict]:
         """Kiểm tra trạng thái các GEE export tasks."""
         logger.info("\n📊 Kiểm tra trạng thái export tasks...")
@@ -472,7 +589,7 @@ Examples:
     
     parser.add_argument(
         '--workflow',
-        choices=['flood', 'subsidence', 'orbit55'],
+        choices=['flood', 'subsidence', 'orbit55', 'landslide'],
         help='Chọn workflow để chạy'
     )
     
@@ -534,6 +651,10 @@ Examples:
         
         if args.all or args.workflow == 'orbit55':
             result = runner.run_primary_orbit55_analysis()
+            all_results.append(result)
+            
+        if args.all or args.workflow == 'landslide':
+            result = runner.run_landslide_detection()
             all_results.append(result)
         
         # Kiểm tra trạng thái

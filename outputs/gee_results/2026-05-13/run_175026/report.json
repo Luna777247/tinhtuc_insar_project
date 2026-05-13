@@ -1,0 +1,38 @@
+{
+  "workflows": [
+    {
+      "workflow": "flood_event",
+      "baseline_period": [
+        "2025-09-15",
+        "2025-09-20"
+      ],
+      "event_period": [
+        "2025-09-28",
+        "2025-10-02"
+      ],
+      "orbit": 55,
+      "pass": "ASCENDING",
+      "threshold_formula": "\u03bc - 1.5\u03c3",
+      "exports": [
+        "Flood_Orbit55_20260513_174858",
+        "Flood_Diff_VV_20260513_174858"
+      ],
+      "timestamp": "20260513_174858"
+    }
+  ],
+  "tasks": [
+    {
+      "name": "Flood_Mask",
+      "id": "2XY5WJ4PTVEUZDLC6HJZQ6Z3",
+      "status": "COMPLETED",
+      "type": "image"
+    },
+    {
+      "name": "Flood_Diff",
+      "id": "PZYKUGHZLAAEOYI2Y3TLVKRZ",
+      "status": "COMPLETED",
+      "type": "image"
+    }
+  ],
+  "google_drive_folder": "TinhTuc_GEE_Results"
+}

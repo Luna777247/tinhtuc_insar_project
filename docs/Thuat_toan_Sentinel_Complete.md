@@ -1,4 +1,4 @@
-# Thuật Toán Sentinel-1 - Tổng Hợp Toàn Diện
+# BÁO CÁO PHÂN TÍCH DỮ LIỆU SAR (GEE) — KHU VỰC TĨNH TÚC
 
 **Dự án:** InSAR Tĩnh Túc, Cao Bằng  
 **Tài liệu:** Cẩm nang kỹ thuật Sentinel-1 SAR  
@@ -27,6 +27,7 @@
 9. [Phát Hiện Ngập Lụt và Sạt Lở](#9-phát-hiện-ngập-lụt-và-sạt-lở)
    - 9.7 Change Detection nâng cao
 10. [Workflow Đề Xuất](#10-workflow-đề-xuất)
+11. [Định Dạng Dữ Liệu Tối Ưu Cho Flood và Landslide Detection](#11-định-dạng-dữ-liệu-tối-ưu-cho-flood-va-landslide-detection)
 
 ---
 
@@ -203,12 +204,14 @@ Về nguyên tắc: **gần như đồng nhất**
 **Phóng:** 04/11/2025 từ Kourou, French Guiana (Ariane 6)
 
 **Kỷ lục "First Light":**
+
 - First images: **06/11/2025** (Antarctic Peninsula, Tierra del Fuego, Thwaites Glacier)
 - Bremen, Germany: **07/11/2025**
 - Downlink: Matera, Italy
 - **Thời gian từ launch đến first light: ~50 giờ** (kỷ lục cho radar satellite)
 
 **Tính năng đặc biệt:**
+
 - SAR instrument: 12m antenna
 - **AIS (Automatic Identification System)**: phát hiện tàu và ô nhiễm biển
 - Multi-polarisation imaging (VV/VH)
@@ -228,10 +231,12 @@ Về nguyên tắc: **gần như đồng nhất**
 ### 5.2. Coherent Nghĩa Là Gì?
 
 Radar phát sóng có:
+
 - **Wavelength xác định**
 - **Phase xác định**
 
 → Cho phép đo:
+
 - Amplitude (backscatter)
 - **Phase** (cho InSAR)
 - Interference
@@ -287,6 +292,7 @@ Earth Engine xử lý S1 GRD theo pipeline của **Sentinel-1 Toolbox** (6 bư�
 **ENL là gì?** Số look tương đương, đo lường mức độ giảm speckle sau multi-look processing.
 
 **Công thức:**
+
 ```
 ENL = mean² / variance
 ```
@@ -330,6 +336,7 @@ var filtered = collection.map(leeFilter);
 **Tags:** backscatter, copernicus, esa, sar, polarization, radar
 
 **Lưu ý quan trọng về 2 collections:**
+
 | Collection | Đơn vị | Giá trị | Dùng khi nào |
 |------------|--------|---------|--------------|
 | `S1_GRD` | dB | -50 đến 1 | Visualization, mức độ thay đổi |
@@ -405,6 +412,7 @@ var median = collection.median();
 **Revisit:** 6 ngày (với constellation đầy đủ)
 
 #### Thuộc tính Quỹ đạo & Thời gian
+
 | Thuộc tính | Kiểu | Mô tả |
 |------------|------|-------|
 | `orbitProperties_pass` | STRING | ASCENDING hoặc DESCENDING |
@@ -416,6 +424,7 @@ var median = collection.median();
 | `phaseIdentifier` | DOUBLE | Mã giai đoạn nhiệm vụ |
 
 #### Thuộc tính Nền tảng & Thiết bị
+
 | Thuộc tính | Kiểu | Mô tả |
 |------------|------|-------|
 | `platform_number` | STRING | A, B, C, D |
@@ -429,6 +438,7 @@ var median = collection.median();
 | `transmitterReceiverPolarisation` | STRING_LIST | ['VV'], ['VH'], ['VV', 'VH'], etc. |
 
 #### Thuộc tính Sản phẩm & Xử lý
+
 | Thuộc tính | Kiểu | Mô tả |
 |------------|------|-------|
 | `productType` | STRING | Loại sản phẩm, cấp hiệu chỉnh |
@@ -443,6 +453,7 @@ var median = collection.median();
 | `resolution_meters` | DOUBLE | Độ phân giải [m] |
 
 #### Thuộc tính Xử lý & Hiệu chuẩn
+
 | Thuộc tính | Kiểu | Mô tả |
 |------------|------|-------|
 | `SLC_Processing_*` | various | Thông tin xử lý SLC (facility, software, version, start/stop time) |
@@ -638,6 +649,7 @@ var s1Collection = ee.ImageCollection('COPERNICUS/S1_GRD')
 ```
 
 **Khi nào dùng Orbit 91 hoặc 128?**
+
 - **Orbit 91 (DESC):** Khi cần cross-validation hoặc phân tích sự kiện ngắn (có 320 ảnh)
 - **Orbit 128 (ASC):** Khi cần bổ sung dữ liệu, nhưng ít ảnh hơn (269 ảnh)
 
@@ -692,6 +704,7 @@ SBAS cần: S1 SLC (Single Look Complex)
 ### 8.3. Physics Của Phase
 
 Radar Sentinel-1:
+
 - **λ ~ 5.6 cm (C-band)**
 - Phase cực kỳ nhạy:
   - Chỉ cần dịch chuyển **vài mm** → phase đã đổi
@@ -702,6 +715,7 @@ Radar Sentinel-1:
 ### 8.4. GEE Có Thể Làm Gì Cho Subsidence?
 
 ✅ **Có thể:**
+
 - Phát hiện vùng biến động mạnh (hotspot detection)
 - Theo dõi backscatter trend theo thời gian
 - Phát hiện instability proxy
@@ -709,6 +723,7 @@ Radar Sentinel-1:
 - Change point detection
 
 ❌ **Không thể:**
+
 - Dịch chuyển phase chính xác mm-level
 - Tính interferogram
 - Atmospheric correction đầy đủ
@@ -717,11 +732,13 @@ Radar Sentinel-1:
 ### 8.5. Workflow Đúng Cho Tĩnh Túc
 
 **Cấp 1-2 (GEE GRD):**
+
 ```
 Sentinel-1 GRD → Backscatter trend → Hotspot screening
 ```
 
 **Cấp 3 (External SBAS):**
+
 ```
 Sentinel-1 SLC → SNAP/ISCE → Interferogram → SBAS → mm-level velocity
 ```
@@ -737,11 +754,13 @@ Sentinel-1 SLC → SNAP/ISCE → Interferogram → SBAS → mm-level velocity
 ### 9.1. Ngập Lụt - Cơ Chế Radar
 
 **A. Open Water Flood (dễ detect)**
+
 - Nước phẳng → specular reflection
 - Radar phản xạ đi hướng khác
 - Ít sóng quay lại → **backscatter thấp (tối)**
 
 **B. Vegetated Flood (phức tạp)**
+
 - Ngập dưới cây/rừng/lúa
 - Radar phản xạ giữa thân cây + nước
 - Tạo **double bounce** → backscatter có thể tăng!
@@ -838,6 +857,7 @@ p(x) = (1/β^α Γ(α)) * x^(α-1) * e^(-x/β)
 #### 9.7.3. Change Detection Algorithms
 
 **A. Ratio Test (2 images)**
+
 ```javascript
 // Ratio of post-event to pre-event
 var ratio = post.divide(pre);
@@ -845,6 +865,7 @@ var change = ratio.lt(0.5).or(ratio.gt(2.0));
 ```
 
 **B. Statistical Test (Chi-square)**
+
 ```javascript
 // Likelihood ratio test for change detection
 var lrTest = function(img1, img2) {
@@ -861,6 +882,7 @@ var lrTest = function(img1, img2) {
 ```
 
 **C. Multi-temporal Change Detection**
+
 ```javascript
 // Spring vs Summer vs Fall
 var spring = s1Float.filterDate('2020-03-01', '2020-04-20').mean();
@@ -1037,13 +1059,385 @@ Map.addLayer(diffVV, {min: -5, max: 5, palette: ['red', 'white', 'blue']}, 'Diff
 
 ---
 
+## 11. Định Dạng Dữ Liệu Tối Ưu Cho Flood và Landslide Detection
+
+Với bài toán khoanh vùng:
+
+- ngập lụt
+- sạt lở
+- instability
+- Sentinel-1 + Google Earth Engine
+
+thì:
+
+```text id="fmt1"
+không có 1 định dạng tốt nhất cho mọi mục đích
+```
+
+### 11.1. Thực tế nên lưu
+
+#### nhiều định dạng cùng lúc
+
+| Dữ liệu           | Format tốt        |
+| ----------------- | ----------------- |
+| Flood mask raster | GeoTIFF           |
+| Landslide raster  | GeoTIFF           |
+| Polygon kết quả   | GeoJSON/Shapefile |
+| Metadata ảnh      | CSV               |
+| Statistics        | CSV/JSON          |
+| Time-series       | CSV/Parquet       |
+| Visualization web | PNG/Tile          |
+
+### 11.2. Quan trọng nhất
+
+#### Raster hay Vector?
+
+#### Flood/SAR bản chất là raster
+
+Sentinel-1:
+
+```text id="fmt2"
+pixel-based measurement
+```
+
+Nên:
+
+```text id="fmt3"
+GeoTIFF là format gốc phù hợp nhất
+```
+
+### 11.3. Vì sao GeoTIFF tốt nhất cho flood map?
+
+#### A. Giữ nguyên pixel
+
+Ví dụ:
+
+- 10m Sentinel-1
+- giá trị mask
+- backscatter
+
+#### B. Có georeference
+
+Lưu:
+
+- projection
+- CRS
+- transform
+
+#### C. GIS support cực mạnh
+
+Mở được bằng:
+
+- QGIS
+- ArcGIS
+- rasterio
+- GDAL
+
+#### D. Phù hợp ML
+
+Dùng tiếp cho:
+
+- segmentation
+- CNN
+- change detection
+
+### 11.4. Flood mask nên lưu thế nào?
+
+Ví dụ:
+
+```text id="fmt4"
+0 = non-flood
+1 = flood
+```
+
+→ raster nhị phân.
+
+#### Đây là chuẩn nhất
+
+### 11.5. Landslide susceptibility cũng vậy
+
+Do:
+
+- slope
+- SAR texture
+- roughness
+
+→ spatial continuous.
+
+Nên:
+
+```text id="fmt5"
+raster phù hợp hơn vector
+```
+
+### 11.6. Khi nào cần vector?
+
+Khi:
+
+- báo cáo
+- dashboard
+- webGIS
+- thống kê hành chính
+
+Ví dụ:
+
+```text id="fmt6"
+polygon vùng ngập
+```
+
+### 11.7. Nhưng vector hóa flood có vấn đề
+
+SAR:
+
+```text id="fmt7"
+rất noisy
+```
+
+→ polygon:
+
+- răng cưa
+- fragmented
+- rất nhiều vertex
+
+#### Đây là lý do
+
+```text id="fmt8"
+không nên coi vector là dữ liệu gốc
+```
+
+### 11.8. Workflow chuẩn
+
+```text id="fmt9"
+Raster = source of truth
+Vector = reporting product
+```
+
+### 11.9. GeoJSON hay Shapefile?
+
+#### GeoJSON
+
+Ưu:
+
+- hiện đại
+- web-friendly
+- dễ đọc
+
+Nhược:
+
+- file lớn
+- chậm với polygon lớn
+
+#### Shapefile
+
+Ưu:
+
+- legacy GIS support
+
+Nhược:
+
+- nhiều file
+- giới hạn field name
+- encoding khó chịu
+
+### 11.10. Hiện nay nên ưu tiên
+
+```text id="fmt10"
+GeoPackage hoặc GeoJSON
+```
+
+### 11.11. CSV dùng cho gì?
+
+CSV:
+
+```text id="fmt11"
+không lưu raster geometry tốt
+```
+
+Nó phù hợp:
+
+- metadata
+- statistics
+- image catalog
+- time-series
+
+Ví dụ:
+
+- orbit
+- acquisition time
+- flood area
+- threshold
+
+### 11.12. JSON dùng cho gì?
+
+JSON tốt cho:
+
+- config
+- processing log
+- API
+- web dashboard
+
+Ví dụ:
+
+```json id="fmt12"
+{
+  "threshold": -3.7,
+  "flood_area_m2": 123456
+}
+```
+
+### 11.13. Nếu muốn scientific reproducibility
+
+Nên lưu:
+
+| Thành phần        | Format  |
+| ----------------- | ------- |
+| Raw SAR metadata  | CSV     |
+| Processing config | JSON    |
+| Final raster      | GeoTIFF |
+| Final polygons    | GeoJSON |
+
+### 11.14. Với dự án của bạn
+
+Tĩnh Túc:
+
+- nhiều địa hình
+- SAR noisy
+- landslide fragmented
+
+Khuyến nghị:
+
+#### A. Flood map
+
+```text id="fmt13"
+GeoTIFF uint8
+```
+
+#### B. Landslide hotspot
+
+```text id="fmt14"
+GeoTIFF float32
+```
+
+#### C. Reporting polygon
+
+```text id="fmt15"
+GeoJSON
+```
+
+#### D. Metadata
+
+```text id="fmt16"
+CSV
+```
+
+### 11.15. Tại sao GeoTIFF quan trọng nhất?
+
+Vì:
+
+```text id="fmt17"
+mọi thứ cuối cùng đều quay về pixel
+```
+
+SAR:
+
+```text id="fmt18"
+không sinh ra polygon tự nhiên
+```
+
+### 11.16. Một sai lầm phổ biến
+
+Nhiều người:
+
+```text id="fmt19"
+convert ngay sang shapefile
+```
+
+→ mất:
+
+- precision
+- raster continuity
+- uncertainty
+
+### 11.17. Với ML sau này
+
+GeoTIFF:
+
+```text id="fmt20"
+gần như bắt buộc
+```
+
+CNN:
+
+- đọc raster
+- không đọc shapefile trực tiếp
+
+### 11.18. Với webGIS
+
+Nên:
+
+- GeoJSON
+- vector tiles
+- COG GeoTIFF
+
+### 11.19. Nếu dữ liệu lớn
+
+Nên dùng:
+
+```text id="fmt21"
+Cloud Optimized GeoTIFF (COG)
+```
+
+Rất tốt cho:
+
+- streaming
+- web map
+- cloud
+
+### 11.20. Nếu cần lưu "uncertainty"
+
+Có thể lưu:
+
+- confidence raster
+- probability raster
+
+Ví dụ:
+
+```text id="fmt22"
+0–1 flood probability
+```
+
+### 11.21. Đây là lựa chọn chuyên nghiệp nhất
+
+| Product                  | Format          |
+| ------------------------ | --------------- |
+| Backscatter              | GeoTIFF float32 |
+| Flood mask               | GeoTIFF uint8   |
+| Landslide susceptibility | GeoTIFF float32 |
+| Polygon summary          | GeoJSON         |
+| Metadata                 | CSV             |
+| Config                   | JSON            |
+
+### 11.22. Câu rất tốt cho báo cáo
+
+```text id="fmt23"
+GeoTIFF là định dạng phù hợp nhất để lưu kết quả flood và landslide detection từ Sentinel-1 do bảo toàn cấu trúc raster, thông tin không gian và giá trị pixel radar gốc.
+```
+
+### 11.23. Và câu chuyên sâu hơn
+
+```text id="fmt24"
+Các định dạng vector như GeoJSON/Shapefile chỉ nên được xem là sản phẩm dẫn xuất phục vụ trực quan hóa và thống kê, không nên thay thế raster SAR gốc trong phân tích khoa học.
+```
+
+---
+
 ## Tài Liệu Tham Khảo
 
-1. **ESA Sentinel-1 User Guide**: https://sentinel.esa.int/web/sentinel/user-guides/sentinel-1-sar
-2. **GEE SAR Basics Tutorial**: https://developers.google.com/earth-engine/tutorials/community/sar-basics
-3. **SNAP Toolbox**: https://step.esa.int/main/download/snap-download/
-4. **MintPy SBAS**: https://github.com/insarlab/MintPy
-5. **ASF HyP3**: https://hyp3-docs.asf.alaska.edu/
+1. **ESA Sentinel-1 User Guide**: <https://sentinel.esa.int/web/sentinel/user-guides/sentinel-1-sar>
+2. **GEE SAR Basics Tutorial**: <https://developers.google.com/earth-engine/tutorials/community/sar-basics>
+3. **SNAP Toolbox**: <https://step.esa.int/main/download/snap-download/>
+4. **MintPy SBAS**: <https://github.com/insarlab/MintPy>
+5. **ASF HyP3**: <https://hyp3-docs.asf.alaska.edu/>
 
 ---
 

@@ -1,0 +1,26 @@
+{
+  "workflows": [
+    {
+      "workflow": "orbit55_analysis",
+      "total_images": 295,
+      "orbit": 55,
+      "period": [
+        "2015-02-20",
+        "2026-04-26"
+      ],
+      "exports": [
+        "Orbit55_Metadata_20260513_172842"
+      ],
+      "timestamp": "20260513_172842"
+    }
+  ],
+  "tasks": [
+    {
+      "name": "Orbit55_Metadata",
+      "id": "AO5EA66ZWHYBXM7FQ5LNEFCI",
+      "status": "COMPLETED",
+      "type": "table"
+    }
+  ],
+  "google_drive_folder": "TinhTuc_GEE_Results"
+}
