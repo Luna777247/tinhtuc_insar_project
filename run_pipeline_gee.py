@@ -27,7 +27,7 @@ import json
 import logging
 import sys
 import time
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
@@ -499,6 +499,96 @@ class GEEWorkflowRunner:
         logger.info(f"✅ Đã tạo export sạt lở: {result_info['exports']}")
         return result_info
     
+    def run_optical_flood_detection(
+        self,
+        event_date: str = "2025-09-30",
+        window_days: int = 3
+    ) -> Dict:
+        """
+        Giai đoạn 3: Dung hợp Quang học - Radar (Optical & SAR Fusion).
+        Lấy ảnh Sentinel-2 quanh sự kiện ngập lụt để bù đắp chu kỳ 12 ngày của SAR.
+        """
+        logger.info("=" * 60)
+        logger.info("☁️ WORKFLOW 5: Optical Flood Detection (Sentinel-2)")
+        logger.info(f"   Event Date: {event_date} (±{window_days} ngày)")
+        logger.info("=" * 60)
+        
+        # Parse dates
+        event_dt = datetime.strptime(event_date, '%Y-%m-%d')
+        start_date = (event_dt - timedelta(days=window_days)).strftime('%Y-%m-%d')
+        end_date = (event_dt + timedelta(days=window_days)).strftime('%Y-%m-%d')
+        
+        # 1. Load Sentinel-2 (Lọc mây < 60%)
+        s2 = ee.ImageCollection('COPERNICUS/S2_SR_HARMONIZED') \
+            .filterBounds(ROI) \
+            .filterDate(start_date, end_date) \
+            .filter(ee.Filter.lt('CLOUDY_PIXEL_PERCENTAGE', 60))
+            
+        count = s2.size().getInfo()
+        if count == 0:
+            logger.warning("❌ Không tìm thấy ảnh Sentinel-2 nào đủ tốt trong dải thời gian này.")
+            return {'workflow': 'optical_flood', 'status': 'no_data'}
+            
+        logger.info(f"✅ Tìm thấy {count} ảnh Sentinel-2.")
+        
+        # 1.5. Xóa Bóng Mây và Mây bằng SCL (Scene Classification Layer)
+        def mask_clouds_scl(img):
+            scl = img.select('SCL')
+            # Lớp 3: Bóng mây (Cloud Shadows) - RẤT QUAN TRỌNG ĐỂ TRÁNH BÁO GIẢ NGẬP
+            # Lớp 8: Mây trung bình, 9: Mây dày, 10: Mây mỏng (Cirrus)
+            # Giữ lại các lớp khác (Nước, Cây, Đất, v.v.)
+            mask = scl.neq(3).And(scl.neq(8)).And(scl.neq(9)).And(scl.neq(10))
+            return img.updateMask(mask)
+            
+        s2 = s2.map(mask_clouds_scl)
+        
+        # 2. Tạo Mosaic ảnh và Tính NDWI (Green - NIR) / (Green + NIR)
+        # Đối với Sentinel-2: B3 là Green, B8 là NIR
+        def compute_ndwi(img):
+            ndwi = img.normalizedDifference(['B3', 'B8']).rename('NDWI')
+            return ndwi.copyProperties(img, img.propertyNames())
+            
+        ndwi_col = s2.map(compute_ndwi)
+        ndwi_mosaic = ndwi_col.max() # Lấy Max NDWI (vùng nước rõ nhất)
+        
+        # 3. Ngưỡng NDWI > 0 thường là nước
+        water_mask = ndwi_mosaic.gt(0).rename('Optical_Water')
+        
+        # Khóa thủy văn (HAND & Slope) - Có thể áp dụng thêm trên GEE nếu cần
+        dem = ee.Image('NASA/NASADEM_HGT/001').select('elevation')
+        slope = ee.Terrain.slope(dem)
+        water_mask = water_mask.And(slope.lt(5)) # Chặn nước trên dốc
+        
+        # 4. Export
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        
+        task_ndwi = ee.batch.Export.image.toDrive(
+            image=water_mask.selfMask().byte(),
+            description=f'Optical_WaterMask_{timestamp}',
+            folder='TinhTuc_GEE_Results',
+            region=ROI,
+            scale=10,
+            crs='EPSG:32648',
+            maxPixels=1e9
+        )
+        task_ndwi.start()
+        
+        self.tasks.append({
+            'name': 'Optical_WaterMask',
+            'task': task_ndwi,
+            'type': 'image'
+        })
+        
+        result_info = {
+            'workflow': 'optical_flood',
+            'period': (start_date, end_date),
+            'exports': [f'Optical_WaterMask_{timestamp}'],
+            'timestamp': timestamp
+        }
+        
+        logger.info(f"✅ Đã tạo export Optical Water Mask: {result_info['exports']}")
+        return result_info
+    
     def check_task_status(self, wait: bool = True, timeout: int = 300) -> List[Dict]:
         """Kiểm tra trạng thái các GEE export tasks."""
         logger.info("\n📊 Kiểm tra trạng thái export tasks...")
@@ -589,7 +679,7 @@ Examples:
     
     parser.add_argument(
         '--workflow',
-        choices=['flood', 'subsidence', 'orbit55', 'landslide'],
+        choices=['flood', 'subsidence', 'orbit55', 'landslide', 'optical'],
         help='Chọn workflow để chạy'
     )
     
@@ -655,6 +745,11 @@ Examples:
             
         if args.all or args.workflow == 'landslide':
             result = runner.run_landslide_detection()
+            all_results.append(result)
+            
+        if args.all or args.workflow == 'optical':
+            # Mặc định gọi với sự kiện ngập lụt
+            result = runner.run_optical_flood_detection()
             all_results.append(result)
         
         # Kiểm tra trạng thái

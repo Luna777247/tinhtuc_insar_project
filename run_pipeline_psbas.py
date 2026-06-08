@@ -363,10 +363,15 @@ def run_phase_2_sbas_clustering(dem, slope, aspect, displacement, time_days, vel
         mac["risk_score"] = classifier.compute_risk_score(mac)
 
     # ── Lưu kết quả ──
-    from src.utils.io_utils import save_velocity_map, save_mac_database
+    from src.utils.io_utils import save_velocity_map, save_mac_database, save_insar_metadata_geojson, save_insar_metadata_csv
     out_dir = ROOT / "outputs"
     save_velocity_map(vel_asc, out_dir / "maps" / "velocity_asc.bin")
     save_mac_database(classified_macs, out_dir / "maps" / "mac_database.csv")
+    
+    # Export metadata points (Quick-win 1)
+    save_insar_metadata_geojson(lat_grid, lon_grid, vel_asc, mean_coh, out_dir / "maps" / "insar_points.geojson", threshold_coh=0.6)
+    save_insar_metadata_csv(lat_grid, lon_grid, vel_asc, mean_coh, out_dir / "maps" / "insar_points.csv", threshold_coh=0.6)
+
 
     # ── Vẽ hình ──
     plot_velocity_map(vel_asc, "asc",

@@ -15,8 +15,11 @@ from pathlib import Path
 
 import math
 import numpy as np
-from flask import Flask, render_template, send_file, abort, Response
+from flask import Flask, render_template, send_file, abort, Response, jsonify, request
 from flask import json as flask_json
+import uuid
+from concurrent.futures import ThreadPoolExecutor
+
 
 # ── Cấu hình ──────────────────────────────────────────────────────────────────
 ROOT = Path(__file__).parent
@@ -29,6 +32,42 @@ REPORTS_DIR = OUTPUTS_DIR / "reports"
 from config.settings import HOTSPOTS, AOI
 
 app = Flask(__name__)
+
+# ── Cấu hình Background Task Queue (Lightweight) ──────────────────────────────
+# Lưu trạng thái tiến độ trên RAM (chỉ dùng cho dev/demo 1 server)
+JOBS = {}
+executor = ThreadPoolExecutor(max_workers=2)
+
+def run_pipeline_task(job_id):
+    """Background Task để chạy pipeline InSAR tránh nghẽn server Flask"""
+    JOBS[job_id] = {'state': 'PROGRESS', 'status': 'Pipeline đang khởi chạy...'}
+    try:
+        # Gọi subprocess chạy kịch bản
+        process = subprocess.Popen(
+            ["python", "run_pipeline_psbas.py"],
+            cwd=str(ROOT),
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True
+        )
+        
+        # Parse output để cập nhật trạng thái tiến độ
+        for line in process.stdout:
+            if "GIAI ĐOẠN" in line:
+                JOBS[job_id]['status'] = line.strip()
+                
+        process.wait()
+        if process.returncode == 0:
+            JOBS[job_id]['state'] = 'Completed'
+            JOBS[job_id]['status'] = 'Xử lý thành công'
+        else:
+            JOBS[job_id]['state'] = 'FAILURE'
+            JOBS[job_id]['status'] = 'Pipeline thất bại (non-zero exit code)'
+    except Exception as e:
+        JOBS[job_id]['state'] = 'FAILURE'
+        JOBS[job_id]['status'] = f'Lỗi hệ thống: {str(e)}'
+
+
 
 
 # ── Tiện ích đọc dữ liệu pipeline ─────────────────────────────────────────────
@@ -226,17 +265,37 @@ def download_file(filename: str):
 
 @app.route("/api/run-pipeline", methods=["POST"])
 def run_pipeline():
-    """Kích hoạt pipeline chạy lại trong nền (non-blocking)."""
+    """Kích hoạt pipeline qua ThreadPoolExecutor (Quick-win 2)"""
     try:
-        subprocess.Popen(
-            ["python3", "run_pipeline.py"],
-            cwd=str(ROOT),
-            stdout=open(ROOT / "logs" / "web_trigger.log", "a"),
-            stderr=subprocess.STDOUT,
-        )
-        return jsonify({"status": "started", "message": "Pipeline đã được khởi động."})
+        job_id = str(uuid.uuid4())
+        JOBS[job_id] = {'state': 'PENDING', 'status': 'Đang chờ trong hàng đợi...'}
+        executor.submit(run_pipeline_task, job_id)
+        
+        return jsonify({
+            "status": "started", 
+            "message": "Pipeline đã được đẩy vào background thread.",
+            "job_id": job_id
+        })
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
+
+
+@app.route("/api/query-state", methods=["GET"])
+def query_state():
+    """Kiểm tra tiến độ của pipeline job (Bắt chước hệ thống InSAR Norway)"""
+    job_id = request.args.get('id')
+    if not job_id:
+        return jsonify({"status": "error", "message": "Missing job id"}), 400
+        
+    if job_id not in JOBS:
+        return jsonify({"status": "error", "message": "Job ID không tồn tại"}), 404
+        
+    job_info = JOBS[job_id]
+    return jsonify({
+        "state": job_info['state'], 
+        "status": job_info['status']
+    })
+
 
 
 # ── Entry point ────────────────────────────────────────────────────────────────

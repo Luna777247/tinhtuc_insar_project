@@ -1,0 +1,95 @@
+Edited note
+Viewed note:93-114
+
+Dựa trên những lỗ hổng đã phân tích, để biến hệ thống giám sát ngập lụt tại Tĩnh Túc từ một "bản nháp" thành một hệ thống cảnh báo cấp độ chuyên gia (Production-grade), chúng ta cần đập đi xây lại **Quy trình 5.1 (Pipeline Ngập lụt)**. 
+
+Dưới đây là Bản Kế hoạch Cải thiện chi tiết chia làm 3 giai đoạn để vá các lỗ hổng vật lý:
+
+### Giai đoạn 1: Nâng cấp Thuật toán Nhận diện Cốt lõi (Xử lý Bẫy phản xạ & Độ ẩm đất)
+*Đừng trừ hai bức ảnh (Pre/Post) một cách ngây thơ, hãy phân tích sự bất thường (Anomaly) trên cả chuỗi thời gian.*
+
+1.  **Xây dựng Harmonic Baseline (Đường cơ sở chuỗi thời gian):**
+    *   Tải toàn bộ dữ liệu GRD của 3 năm gần nhất trong các tháng mùa khô.
+    *   Tính giá trị trung bình (Mean) và độ lệch chuẩn (Standard Deviation - $\sigma$) cho từng pixel. Đây là "chữ ký" quang phổ tự nhiên của sườn núi Tĩnh Túc khi không có mưa.
+2.  **Tính Z-Score Anomaly (Độ lệch chuẩn bất thường):**
+    *   Khi có ảnh Post-event (sau mưa lớn), thay vì trừ đi ảnh Pre-event, hãy tính điểm **Z-score**: $Z = \frac{Post - Mean}{\sigma}$.
+    *   Nếu $Z < -2.5$: Đây là **Nước mặt tĩnh (Open Water)** (tín hiệu tối đi bất thường).
+    *   Nếu $Z > +2.5$: Đây là **Ngập dưới tán cây / Bùn lỏng / Nước có gió** (tín hiệu sáng lên bất thường do Double-bounce).
+3.  **Lọc nhiễu Speckle theo không gian (Spatial Filtering):** Áp dụng bộ lọc Refined Lee hoặc lọc theo cụm đối tượng (Object-Based) để xóa các điểm ngập lẻ tẻ 1-2 pixel (Noise).
+
+### Giai đoạn 2: Khóa chặt Báo động giả bằng Mô hình Thủy văn (Xử lý Bóng địa hình)
+*Nước chảy chỗ trũng, radar không được báo ngập trên đỉnh núi.*
+
+1.  **Tạo Radar Shadow/Layover Mask:**
+    *   Dùng SRTM DEM 30m và Góc tới (Incidence Angle) của Sentinel-1 để tính toán bản đồ che khuất (Shadow Map). Loại bỏ vĩnh viễn các vùng này khỏi kết quả ngập.
+2.  **Tính toán chỉ số HAND (Height Above Nearest Drainage):**
+    *   Dùng DEM và mạng lưới sông suối Tĩnh Túc để tính độ cao tương đối của mọi điểm so với dòng suối gần nhất.
+    *   **Quy tắc vật lý (Logical Rule):** Lọc bỏ TẤT CẢ các vùng có tín hiệu ngập (từ Giai đoạn 1) nếu điểm đó có giá trị `HAND > 15 mét` hoặc `Độ dốc (Slope) > 5 độ`. Nước không thể đọng lại thành vùng ngập trên mặt phẳng nghiêng dốc hoặc cách mặt suối 15 mét.
+
+### Giai đoạn 3: Dung hợp Đa dữ liệu (Xử lý Độ trễ 12 ngày)
+*Đừng đợi Sentinel-1, hãy tự động hóa việc chắp vá dữ liệu.*
+
+1.  **Hệ thống Kích hoạt Dựa trên Mưa (Rainfall Trigger):**
+    *   Liên kết với API lượng mưa (CHIRPS hoặc trạm đo thực tế). Khi lượng mưa 24h vượt quá 100mm, kích hoạt Pipeline ngập lụt.
+2.  **Optical & SAR Fusion (Dung hợp Quang học - Radar):**
+    *   Code một đoạn script GEE tự động quét ảnh **Sentinel-2 (Quang học, 5 ngày/chuyến)** và **PlanetScope (3m, chụp hàng ngày)** trong dải thời gian $\pm 3$ ngày quanh sự kiện mưa lũ.
+    *   Nếu trời quang mây: Dùng chỉ số NDWI (Normalized Difference Water Index) từ ảnh quang học làm bản đồ ngập chính.
+    *   Nếu trời nhiều mây: Dùng kết quả SAR từ Giai đoạn 2 làm bản đồ ngập chính.
+    *   Ghép (Mosaic) kết quả của cả hai hệ thống lại để tạo ra bản đồ "Maximum Flood Extent" (Vùng ngập tối đa).
+
+**Tóm tắt Kế hoạch Triển khai (Action Items):**
+*   **Tuần 1:** Cập nhật script GEE để thay thế hàm `Difference` bằng `Z-Score Anomaly` (Áp dụng thống kê time-series).
+*   **Tuần 2:** Lập trình tạo lớp mặt nạ HAND và Độ dốc (Slope mask) để chèn lên trên bản đồ Z-Score.
+*   **Tuần 3:** Viết API tự động gọi dữ liệu quang học (Sentinel-2) khi phát hiện mây mỏng để bù đắp cho chu kỳ 12 ngày chậm chạp của SAR.
+
+
+Edited plan_ng%E1%BA%ADp%20l%E1%BB%A5t
+Viewed plan_ng%E1%BA%ADp%20l%E1%BB%A5t:1-27
+Listed directory tinhtuc_insar_project
+Listed directory src
+Listed directory flood_landslide
+
+Dự án InSAR Tĩnh Túc này được thiết kế theo chuẩn **Kiến trúc Modular (chia nhỏ thành các module độc lập)**, cực kỳ chuyên nghiệp và chuẩn mực cho các hệ thống Data Science / Geophysics quy mô lớn. 
+
+Dưới đây là giải thích tổng quan về cấu trúc thư mục và chỉ điểm chính xác nơi bạn cần thao tác để "đập đi xây lại" phần ngập lụt.
+
+### 1. Tổng quan Cấu trúc Thư mục Dự án
+
+```text
+d:\tinhtuc_insar_project\
+├── config/              # Nơi chứa các tham số lõi (settings.py). Mọi thông số như tọa độ AOI, ngưỡng lọc lún, ngưỡng mưa đều nằm ở đây.
+├── data/                # Chứa dữ liệu gốc (raw) tải từ vệ tinh và dữ liệu trung gian (processed).
+├── gee_scripts/         # Các đoạn code JavaScript để chạy trực tiếp trên máy chủ của Google Earth Engine (GEE).
+├── outputs/             # Nơi xuất kết quả cuối cùng (Bản đồ GeoJSON, file CSV, biểu đồ PNG).
+├── snap_mintpy/         # Chứa kịch bản cấu hình cho SNAP và MintPy (dùng cho phần Sụt lún - SLC).
+├── src/                 # Trái tim của dự án (Toàn bộ mã nguồn Python lõi):
+│   ├── kalman/          # Bộ lọc Spatiotemporal Kalman Filter 4D.
+│   ├── sbas/            # Thuật toán P-SBAS đo sụt lún.
+│   ├── transformer/     # Mô hình AI học tương quan lượng mưa - sụt lún.
+│   ├── flood_landslide/ # QUAN TRỌNG: Nơi xử lý ngập lụt và sạt lở nhanh (GRD).
+│   └── utils/           # Các hàm tiện ích (I/O, vẽ bản đồ, xuất GeoJSON).
+├── web_app.py           # Server Flask chạy Dashboard WebGIS.
+├── run_pipeline_psbas.py # File chạy luồng chính (Main Orchestrator) cho sụt lún.
+└── run_pipeline_gee.py  # File chạy luồng chính cho ngập lụt/sạt lở qua GEE.
+```
+
+### 2. Nếu cải thiện phần Ngập lụt, bạn cần code ở đâu?
+
+Dựa vào Kế hoạch Cải thiện 3 Giai đoạn đã lập ra, bạn sẽ cần thao tác chủ yếu tại **3 file/thư mục** sau:
+
+#### Điểm chạm 1: `src/flood_landslide/flood_detector.py`
+Đây là nơi thuật toán tìm kiếm ngập lụt đang cư trú. 
+*   **Việc cần code:** Bạn sẽ phải xóa bỏ hàm tính `Difference/Ratio` cũ ở đây. Thay vào đó, lập trình hàm mới để tính **Z-Score Anomaly**.
+*   **Việc cần code:** Viết thêm hàm đọc lớp mặt nạ **HAND (Height Above Nearest Drainage)** và **Slope** (Độ dốc) để chặn đứng các cảnh báo ngập sai trên sườn đồi. Hàm này sẽ lấy mảng pixel của Z-Score và "bôi đen" (mask) tất cả các pixel có HAND > 15m.
+
+#### Điểm chạm 2: Thư mục `gee_scripts/` (Cụ thể là các file `flood_mapping.js` hoặc tương tự)
+Tính toán Harmonic Baseline (trung bình mùa khô của 3 năm) mất rất nhiều tài nguyên. Không nên tải hết ảnh về máy tính cá nhân để tính.
+*   **Việc cần code:** Bạn viết một script JavaScript mới đặt trong `gee_scripts/`. Script này sẽ ra lệnh cho Google Earth Engine (GEE) dùng hàng nghìn server của họ để tự động nhặt ảnh 3 năm qua, tính Mean và Standard Deviation ($\sigma$), sau đó chỉ nhả file kết quả (.tif) cuối cùng về cho Python xử lý.
+*   **Giai đoạn 3 (Optical Fusion):** Bạn cũng có thể viết thêm một script GEE để lấy chỉ số NDWI từ vệ tinh quang học Sentinel-2 tại thư mục này.
+
+#### Điểm chạm 3: `run_pipeline_gee.py` (Main Orchestrator)
+Đây là file điều khiển luồng (Flow control).
+*   **Việc cần code:** Thiết lập **Hệ thống Kích hoạt (Trigger)** ở đây. Bạn sẽ viết một đoạn code liên kết với dữ liệu thời tiết (như CHIRPS hoặc trạm đo).
+    *   *Logic:* `If (Lượng mưa 24h > 100mm) -> Gọi file flood_detector.py chạy thuật toán Z-Score -> Gọi GEE tải ảnh Sentinel-2 (nếu ít mây) -> Cập nhật lên web_app.py`.
+
+**Tóm lại:** Bạn hãy bắt đầu mở file `src/flood_landslide/flood_detector.py` ra. Đó chính là "công trường" chính để đập bỏ cái cũ và xây dựng thuật toán chuẩn vật lý thủy văn mới.

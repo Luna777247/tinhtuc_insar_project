@@ -51,3 +51,7 @@ scipy
 shapely
 torch
 torchvision
+
+# Background Tasks
+celery>=5.3
+redis>=5.0

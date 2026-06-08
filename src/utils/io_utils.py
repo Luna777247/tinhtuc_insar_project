@@ -174,6 +174,76 @@ def save_4d_movements(movements: Dict[str, np.ndarray],
     logger.info(f"Saved 4D movements: {filepath} ({len(dates)} epochs)")
 
 
+def save_insar_metadata_geojson(lat_grid: np.ndarray, lon_grid: np.ndarray, 
+                                velocity: np.ndarray, coherence: np.ndarray, 
+                                filepath: Path, threshold_coh: float = 0.6) -> None:
+    """
+    Lưu metadata InSAR (Velocity, Coherence) dưới dạng GeoJSON để load lên Web Map.
+    Chỉ lưu các điểm có độ tin cậy (coherence) lớn hơn ngưỡng.
+    """
+    import json
+    filepath.parent.mkdir(parents=True, exist_ok=True)
+    
+    features = []
+    H, W = velocity.shape
+    point_id = 1
+    for i in range(H):
+        for j in range(W):
+            coh = float(coherence[i, j])
+            if coh > threshold_coh:
+                features.append({
+                    "type": "Feature",
+                    "geometry": {
+                        "type": "Point",
+                        "coordinates": [float(lon_grid[i, j]), float(lat_grid[i, j])]
+                    },
+                    "properties": {
+                        "id": point_id,
+                        "v_mean_mm_yr": round(float(velocity[i, j]), 2),
+                        "coherence": round(coh, 3)
+                    }
+                })
+                point_id += 1
+                
+    geojson_data = {
+        "type": "FeatureCollection",
+        "features": features
+    }
+    
+    with open(filepath, "w", encoding="utf-8") as f:
+        json.dump(geojson_data, f, ensure_ascii=False)
+    
+    logger.info(f"Saved {len(features)} points to GeoJSON: {filepath}")
+
+def save_insar_metadata_csv(lat_grid: np.ndarray, lon_grid: np.ndarray, 
+                            velocity: np.ndarray, coherence: np.ndarray, 
+                            filepath: Path, threshold_coh: float = 0.6) -> None:
+    """Lưu metadata InSAR ra file CSV."""
+    import csv
+    filepath.parent.mkdir(parents=True, exist_ok=True)
+    
+    H, W = velocity.shape
+    point_id = 1
+    
+    with open(filepath, "w", newline="") as f:
+        writer = csv.writer(f)
+        writer.writerow(["Point_ID", "Lon", "Lat", "V_mean_mm_yr", "Coherence"])
+        for i in range(H):
+            for j in range(W):
+                coh = float(coherence[i, j])
+                if coh > threshold_coh:
+                    writer.writerow([
+                        point_id, 
+                        round(float(lon_grid[i, j]), 5), 
+                        round(float(lat_grid[i, j]), 5), 
+                        round(float(velocity[i, j]), 2), 
+                        round(coh, 3)
+                    ])
+                    point_id += 1
+    logger.info(f"Saved CSV points metadata to: {filepath}")
+
+
+
 # ─────────────────────────────────────────────────────────────
 # 3. HÀM NỘI BỘ VÀ DỮ LIỆU TỔNG HỢP (CHO TEST/DEV)
 # ─────────────────────────────────────────────────────────────
